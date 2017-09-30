@@ -74,6 +74,12 @@
   <ItemGroup>
     <Compile Include="Cheque.vb" />
     <Compile Include="DCC.vb" />
+    <Compile Include="Micr.Designer.vb">
+      <DependentUpon>Micr.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Micr.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Modulo.vb" />
     <Compile Include="Recuento.vb">
       <SubType>Form</SubType>
@@ -99,6 +105,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Micr.resx">
+      <DependentUpon>Micr.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>

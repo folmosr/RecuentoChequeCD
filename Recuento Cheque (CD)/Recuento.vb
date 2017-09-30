@@ -425,7 +425,7 @@ Public Class Recuento
         ToolTip4.SetToolTip(BtnLast, "Ir al último cheque")
     End Sub
     Private Sub ReiniciaControlesDetalle()
-        TxtMonto.Text = Nothing
+        TxtMonto.Text = 0
         TxtTotal.Text = "0.00"
         DtFecha.Value = Date.Now
     End Sub
@@ -663,22 +663,24 @@ Public Class Recuento
     End Function
 
     Private Sub BtnNext_Click(sender As Object, e As EventArgs) Handles BtnNext.Click
-        ActualizaCheque()
-        indice += 1
-        SetDatosAControles()
+        If (ActualizaCheque()) Then
+            indice += 1
+            SetDatosAControles()
+        End If
     End Sub
 
     Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click
-        ActualizaCheque()
-        indice -= 1
-        indice = If(indice < 0, 0, indice)
+        If (ActualizaCheque()) Then
+            indice -= 1
+            indice = If(indice < 0, 0, indice)
 
-        SetDatosAControles()
-        If (indice = 0) Then
-            BtnBack.Enabled = False
-        End If
-        If (Not BtnNext.Enabled) Then
-            BtnNext.Enabled = True
+            SetDatosAControles()
+            If (indice = 0) Then
+                BtnBack.Enabled = False
+            End If
+            If (Not BtnNext.Enabled) Then
+                BtnNext.Enabled = True
+            End If
         End If
     End Sub
 
@@ -704,12 +706,33 @@ Public Class Recuento
             BtnBack.Enabled = True
         End If
     End Sub
-    Private Sub ActualizaCheque()
-        Dim objCheque As Cheque = ListaCheques.ElementAt(indice)
-        objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
-        objCheque.Fecha = DtFecha.Value
-        'CalculaTotal()
-    End Sub
+    Private Function ActualizaCheque() As Boolean
+        Dim currentDate As Date = DateTime.Now()
+        Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
+        If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res)) Then
+            Dim objCheque As Cheque = ListaCheques.ElementAt(indice)
+            If (Not objCheque.Micr.IndexOf("?") > -1) Then
+                objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
+                objCheque.Fecha = DtFecha.Value
+            Else
+                MessageBox.Show("Código CMC7 inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                Micr.Show()
+                Return False
+            End If
+        Else
+            If (Convert.ToSingle(TxtMonto.Text) = 0) Then
+                MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                TxtMonto.Select()
+                Return False
+            End If
+            If (Not res) Then
+                MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                DtFecha.Select()
+                Return False
+            End If
+        End If
+        Return True
+    End Function
 
     Private Sub CalculaTotal()
         Dim total As Single = 0
@@ -732,7 +755,7 @@ Public Class Recuento
         Dim currentDate As Date = DateTime.Now()
         Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
         If (Not res) Then
-            MessageBox.Show("Fecha inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             DtFecha.Select()
         End If
     End Sub
@@ -755,7 +778,7 @@ Public Class Recuento
     End Sub
 
     Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
-        If (TxtMonto.Text Is Nothing) Then
+        If (TxtMonto.Text = 0) Then
             MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             TxtMonto.Select()
             Return
