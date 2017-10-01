@@ -1,6 +1,10 @@
 ﻿Public Class Cheque
 
     Private _micr As String
+    Private _nroCheque As String
+    Private _codBanco As String
+    Private _codPlza As String
+    Private _ctaCorriente As String
     Private _imagenA As String
     Private _imagenR As String
     Private _imagenABitmap As Bitmap
@@ -71,8 +75,51 @@
         End Set
     End Property
 
+    Public Property NroCheque As String
+        Get
+            Return _nroCheque
+        End Get
+        Set(value As String)
+            _nroCheque = value
+        End Set
+    End Property
+
+    Public Property CodBanco As String
+        Get
+            Return _codBanco
+        End Get
+        Set(value As String)
+            _codBanco = value
+        End Set
+    End Property
+
+    Public Property CodPlza As String
+        Get
+            Return _codPlza
+        End Get
+        Set(value As String)
+            _codPlza = value
+        End Set
+    End Property
+
+    Public Property CtaCorriente As String
+        Get
+            Return _ctaCorriente
+        End Get
+        Set(value As String)
+            _ctaCorriente = value
+        End Set
+    End Property
+
     Public Sub New(ByVal micr As String, ByVal imagenA As Bitmap, ByVal imagenR As Bitmap)
-        Me.Micr = micr
+        Me.Micr = micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty)
+        If (Me.Micr.Length = 29) Then
+            Me.NroCheque = Me.Micr.Substring(0, 7)
+            Me.CodBanco = Me.Micr.Substring(8, 3)
+            Me.CodPlza = Me.Micr.Substring(11, 4)
+            Me.CtaCorriente = Me.Micr.Substring(15, 11)
+            Me.Micr = Me.Micr.Substring(0, 27)
+        End If
         Me.ImagenA = GetBase64Code(imagenA)
         Me.ImagenA = GetBase64Code(imagenR)
         Me.ImagenABitmap = imagenA
@@ -94,7 +141,7 @@
         Return Convert.ToBase64String(bitmapBytes)
     End Function
 
-    Function Base64ToImage(ByVal base64string As String) As System.Drawing.Image
+    Private Function Base64ToImage(ByVal base64string As String) As System.Drawing.Image
         'Setup image and get data stream together
         Dim img As System.Drawing.Image
         Dim MS As System.IO.MemoryStream = New System.IO.MemoryStream
@@ -110,4 +157,9 @@
 
         Return img
     End Function
+
+    Public Sub SetMICR()
+        Me.Micr = (Me.NroCheque & Me.CodBanco & Me.CodPlza & Me.CtaCorriente)
+    End Sub
+
 End Class

@@ -66,4 +66,15 @@
     Public ScannerType As Integer
 
     Public ImagenActual As String
+
+    Public ListaCheques As List(Of Cheque)
+    Public Indice As Int16
+
+    Public BACKSPACE As Int16 = 8
+    Public DECIMAL_POINT As Int16 = 44
+    Public THOUNSAND_POINT As Int16 = 46
+    Public ZERO As Int16 = 48
+    Public NINE As Int16 = 57
+    Public NOT_FOUND As Int16 = -1
+
 End Module

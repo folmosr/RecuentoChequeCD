@@ -31,6 +31,7 @@ Partial Class Recuento
         Me.FrontPictureBox = New System.Windows.Forms.PictureBox()
         Me.BackPictureBox = New System.Windows.Forms.PictureBox()
         Me.PanelContainer = New System.Windows.Forms.Panel()
+        Me.BtnGuardar = New System.Windows.Forms.Button()
         Me.BtnBack = New System.Windows.Forms.Button()
         Me.BtnNext = New System.Windows.Forms.Button()
         Me.BtnFirst = New System.Windows.Forms.Button()
@@ -45,7 +46,6 @@ Partial Class Recuento
         Me.ToolTip2 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip3 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip4 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.BtnGuardar = New System.Windows.Forms.Button()
         Me.PpalLayoutPanel.SuspendLayout()
         Me.InnerLayoutPanel.SuspendLayout()
         CType(Me.FrontPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -74,11 +74,10 @@ Partial Class Recuento
         '
         Me.LblChcSerial.AutoSize = True
         Me.LblChcSerial.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LblChcSerial.Enabled = False
         Me.LblChcSerial.Location = New System.Drawing.Point(3, 0)
         Me.LblChcSerial.Name = "LblChcSerial"
         Me.LblChcSerial.Size = New System.Drawing.Size(589, 39)
-        Me.LblChcSerial.TabIndex = 0
+        Me.LblChcSerial.TabIndex = 7
         Me.LblChcSerial.Text = "Cheque Serial"
         Me.LblChcSerial.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         '
@@ -86,11 +85,10 @@ Partial Class Recuento
         '
         Me.LblChcCount.AutoSize = True
         Me.LblChcCount.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.LblChcCount.Enabled = False
         Me.LblChcCount.Location = New System.Drawing.Point(598, 0)
         Me.LblChcCount.Name = "LblChcCount"
         Me.LblChcCount.Size = New System.Drawing.Size(183, 39)
-        Me.LblChcCount.TabIndex = 1
+        Me.LblChcCount.TabIndex = 8
         Me.LblChcCount.Text = "1/N"
         Me.LblChcCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.LblChcCount.UseMnemonic = False
@@ -153,13 +151,24 @@ Partial Class Recuento
         Me.PanelContainer.Size = New System.Drawing.Size(183, 330)
         Me.PanelContainer.TabIndex = 3
         '
+        'BtnGuardar
+        '
+        Me.BtnGuardar.Cursor = System.Windows.Forms.Cursors.Arrow
+        Me.BtnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.System
+        Me.BtnGuardar.Location = New System.Drawing.Point(11, 278)
+        Me.BtnGuardar.Name = "BtnGuardar"
+        Me.BtnGuardar.Size = New System.Drawing.Size(159, 34)
+        Me.BtnGuardar.TabIndex = 4
+        Me.BtnGuardar.Text = "Guardar"
+        Me.BtnGuardar.UseVisualStyleBackColor = True
+        '
         'BtnBack
         '
         Me.BtnBack.Image = CType(resources.GetObject("BtnBack.Image"), System.Drawing.Image)
         Me.BtnBack.Location = New System.Drawing.Point(51, 229)
         Me.BtnBack.Name = "BtnBack"
         Me.BtnBack.Size = New System.Drawing.Size(42, 30)
-        Me.BtnBack.TabIndex = 10
+        Me.BtnBack.TabIndex = 5
         Me.BtnBack.UseVisualStyleBackColor = True
         '
         'BtnNext
@@ -168,7 +177,7 @@ Partial Class Recuento
         Me.BtnNext.Location = New System.Drawing.Point(91, 229)
         Me.BtnNext.Name = "BtnNext"
         Me.BtnNext.Size = New System.Drawing.Size(42, 30)
-        Me.BtnNext.TabIndex = 9
+        Me.BtnNext.TabIndex = 3
         Me.BtnNext.UseVisualStyleBackColor = True
         '
         'BtnFirst
@@ -177,7 +186,7 @@ Partial Class Recuento
         Me.BtnFirst.Location = New System.Drawing.Point(131, 229)
         Me.BtnFirst.Name = "BtnFirst"
         Me.BtnFirst.Size = New System.Drawing.Size(42, 30)
-        Me.BtnFirst.TabIndex = 8
+        Me.BtnFirst.TabIndex = 6
         Me.BtnFirst.UseVisualStyleBackColor = True
         '
         'BtnLast
@@ -221,7 +230,7 @@ Partial Class Recuento
         Me.DtFecha.Location = New System.Drawing.Point(12, 117)
         Me.DtFecha.Name = "DtFecha"
         Me.DtFecha.Size = New System.Drawing.Size(160, 20)
-        Me.DtFecha.TabIndex = 3
+        Me.DtFecha.TabIndex = 2
         '
         'LblFecha
         '
@@ -257,17 +266,6 @@ Partial Class Recuento
         Me.LblMonto.Text = "MONTO"
         Me.LblMonto.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
-        'BtnGuardar
-        '
-        Me.BtnGuardar.Cursor = System.Windows.Forms.Cursors.Arrow
-        Me.BtnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.System
-        Me.BtnGuardar.Location = New System.Drawing.Point(11, 278)
-        Me.BtnGuardar.Name = "BtnGuardar"
-        Me.BtnGuardar.Size = New System.Drawing.Size(159, 34)
-        Me.BtnGuardar.TabIndex = 11
-        Me.BtnGuardar.Text = "Guardar"
-        Me.BtnGuardar.UseVisualStyleBackColor = True
-        '
         'Recuento
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -291,7 +289,6 @@ Partial Class Recuento
     End Sub
 
     Friend WithEvents PpalLayoutPanel As TableLayoutPanel
-    Private WithEvents LblChcSerial As Label
     Friend WithEvents LblChcCount As Label
     Friend WithEvents InnerLayoutPanel As TableLayoutPanel
     Friend WithEvents FrontPictureBox As PictureBox
@@ -312,4 +309,5 @@ Partial Class Recuento
     Friend WithEvents ToolTip3 As ToolTip
     Friend WithEvents ToolTip4 As ToolTip
     Friend WithEvents BtnGuardar As Button
+    Friend WithEvents LblChcSerial As Label
 End Class

@@ -4,17 +4,26 @@ Imports System.Text.RegularExpressions
 Imports Recuento_Cheque__CD_
 
 Public Class Recuento
-    Private lista As List(Of Cheque)
-    Private indice As Int16
+    'Private _lista As List(Of Cheque)
+    'Private _Modulo.Indice As Int16
 
-    Public Property ListaCheques As List(Of Cheque)
-        Get
-            Return lista
-        End Get
-        Set(value As List(Of Cheque))
-            lista = value
-        End Set
-    End Property
+    'Public Property Modulo.ListaCheques As List(Of Cheque)
+    '    Get
+    '        Return _lista
+    '    End Get
+    '    Set(value As List(Of Cheque))
+    '        _lista = value
+    '    End Set
+    'End Property
+
+    'Public Property Modulo.Indice As Short
+    '    Get
+    '        Return Modulo.Indice
+    '    End Get
+    '    Set(value As Short)
+    '        _Modulo.Indice = value
+    '    End Set
+    'End Property
 
     Private Sub Recuento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         SetTootlTips()
@@ -27,7 +36,7 @@ Public Class Recuento
     Private Sub Inicializador()
         Dim Inicializado As Boolean
         Dim Reintento As MsgBoxResult
-        indice = 0
+        Modulo.Indice = 0
         PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
         PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
         If (Not Directory.Exists(PathImagenes)) Then Directory.CreateDirectory(PathImagenes)
@@ -58,7 +67,7 @@ Public Class Recuento
                 ee = ee.Substring(0, ee.IndexOf(Chr(0)))
                 SN = SN.Substring(0, SN.IndexOf(Chr(0)))
                 Me.Text = "DCC - AMM Demo >>>" + ee.Trim() + " (" + SN + ")"
-                ListaCheques = New List(Of Cheque)
+                Modulo.ListaCheques = New List(Of Cheque)
             Else
                 Reintento = MessageBox.Show("No se encontró digitalizador !, Desea reintentar ?", "Inicialización", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             End If
@@ -68,9 +77,9 @@ Public Class Recuento
         End If
     End Sub
     Private Sub DigiAvanzada(ByVal DocNum As Integer)
-        Dim IndicesTif As IO.StreamWriter = New StreamWriter(PathImagenes + "IndicesTif.Dat", True, Encoding.Default)
-        Dim IndicesJpg As IO.StreamWriter = New StreamWriter(PathImagenes + "IndicesJpg.Dat", True, Encoding.Default)
-        Dim IndicesBmp As IO.StreamWriter = New StreamWriter(PathImagenes + "IndicesBmp.Dat", True, Encoding.Default)
+        Dim IndicesTif As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesTif.Dat", True, Encoding.Default)
+        Dim IndicesJpg As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesJpg.Dat", True, Encoding.Default)
+        Dim IndicesBmp As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesBmp.Dat", True, Encoding.Default)
 
         Dim ImgALen As String = Space(255)
         Dim ImgRLen As String = Space(255)
@@ -362,7 +371,7 @@ Public Class Recuento
                     ' Dim FileImage As FileStream = New FileStream(ImgA, FileMode.Open)
                     DispImagenA = New Bitmap(Image.FromStream(FileA))
                     DispImagenR = New Bitmap(Image.FromStream(FileR))
-                    ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR))
+                    Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR))
                     FrontPictureBox.Image = DispImagenA
                     BackPictureBox.Image = DispImagenR
                     LblChcSerial.Text = MICR
@@ -394,7 +403,7 @@ Public Class Recuento
     End Sub
 
     Private Sub MostrarPrimerChequeEnLista()
-        Dim fCheque As Cheque = ListaCheques.First()
+        Dim fCheque As Cheque = Modulo.ListaCheques.First()
         SetDatosAControles()
         DesbloqueaDetalle()
     End Sub
@@ -664,18 +673,18 @@ Public Class Recuento
 
     Private Sub BtnNext_Click(sender As Object, e As EventArgs) Handles BtnNext.Click
         If (ActualizaCheque()) Then
-            indice += 1
+            Modulo.Indice += 1
             SetDatosAControles()
         End If
     End Sub
 
     Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click
         If (ActualizaCheque()) Then
-            indice -= 1
-            indice = If(indice < 0, 0, indice)
+            Modulo.Indice -= 1
+            Modulo.Indice = If(Modulo.Indice < 0, 0, Modulo.Indice)
 
             SetDatosAControles()
-            If (indice = 0) Then
+            If (Modulo.Indice = 0) Then
                 BtnBack.Enabled = False
             End If
             If (Not BtnNext.Enabled) Then
@@ -685,21 +694,21 @@ Public Class Recuento
     End Sub
 
     Private Sub SetDatosAControles()
-        If (indice < ListaCheques.Count) Then
-            Dim objCheque As Cheque = ListaCheques.ElementAt(indice)
+        If (Modulo.Indice < Modulo.ListaCheques.Count) Then
+            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             Dim posicion As String
-            posicion = If(indice = 0, "1", (indice + 1).ToString())
-            LblChcCount.Text = posicion & "/" & Convert.ToString(ListaCheques.Count)
+            posicion = If(Modulo.Indice = 0, "1", (Modulo.Indice + 1).ToString())
+            LblChcCount.Text = posicion & "/" & Convert.ToString(Modulo.ListaCheques.Count)
             LblChcSerial.Text = objCheque.Micr
             FrontPictureBox.Image = objCheque.ImagenABitmap
             BackPictureBox.Image = objCheque.ImagenRBitmap
             TxtMonto.Text = objCheque.Monto.ToString("#,#.00#;(#,#.00#)")
             DtFecha.Value = objCheque.Fecha
         Else
-            indice -= 1
+            Modulo.Indice -= 1
             SetDatosAControles()
         End If
-        If (indice = (ListaCheques.Count - 1)) Then
+        If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
             BtnNext.Enabled = False
         End If
         If (Not BtnBack.Enabled) Then
@@ -710,7 +719,7 @@ Public Class Recuento
         Dim currentDate As Date = DateTime.Now()
         Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
         If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res)) Then
-            Dim objCheque As Cheque = ListaCheques.ElementAt(indice)
+            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             If (Not objCheque.Micr.IndexOf("?") > -1) Then
                 objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
                 objCheque.Fecha = DtFecha.Value
@@ -736,18 +745,18 @@ Public Class Recuento
 
     Private Sub CalculaTotal()
         Dim total As Single = 0
-        For Each objCheque As Cheque In ListaCheques
+        For Each objCheque As Cheque In Modulo.ListaCheques
             total += objCheque.Monto
         Next
         TxtTotal.Text = total.ToString("#,#.00#;(#,#.00#)")
     End Sub
     Private Sub BtnFirst_Click(sender As Object, e As EventArgs) Handles BtnFirst.Click
-        indice = 0
+        Modulo.Indice = 0
         SetDatosAControles()
     End Sub
 
     Private Sub BtnLast_Click(sender As Object, e As EventArgs) Handles BtnLast.Click
-        indice = (ListaCheques.Count - 1)
+        Modulo.Indice = (Modulo.ListaCheques.Count - 1)
         SetDatosAControles()
     End Sub
 
@@ -761,16 +770,8 @@ Public Class Recuento
     End Sub
 
     Private Sub TxtMonto_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles TxtMonto.KeyPress
-        Dim BACKSPACE As Int16 = 8
-        Dim DECIMAL_POINT As Int16 = 44
-        Dim THOUNSAND_POINT As Int16 = 46
-        Dim ZERO As Int16 = 48
-        Dim NINE As Int16 = 57
-        Dim NOT_FOUND As Int16 = -1
-
         Dim keyvalue As Int32 = Asc(e.KeyChar)
-
-        If ((keyvalue = BACKSPACE) Or (((keyvalue >= ZERO) And (keyvalue <= NINE)) Or (keyvalue = DECIMAL_POINT) Or (keyvalue = THOUNSAND_POINT))) Then
+        If ((keyvalue = Modulo.BACKSPACE) Or (((keyvalue >= Modulo.ZERO) And (keyvalue <= Modulo.NINE)) Or (keyvalue = Modulo.DECIMAL_POINT) Or (keyvalue = Modulo.THOUNSAND_POINT))) Then
             e.Handled = False
         Else
             e.Handled = True

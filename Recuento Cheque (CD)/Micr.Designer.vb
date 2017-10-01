@@ -23,15 +23,15 @@ Partial Class Micr
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.TxtNCheque = New System.Windows.Forms.TextBox()
-        Me.BtnCMC = New System.Windows.Forms.Button()
-        Me.LblNCheque = New System.Windows.Forms.Label()
-        Me.TxtCodBco = New System.Windows.Forms.TextBox()
-        Me.LblCodBco = New System.Windows.Forms.Label()
-        Me.LblCodPlza = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.TxtCtaCorriente = New System.Windows.Forms.TextBox()
+        Me.LblCodPlza = New System.Windows.Forms.Label()
+        Me.TxtCodPlza = New System.Windows.Forms.TextBox()
+        Me.LblCodBco = New System.Windows.Forms.Label()
+        Me.TxtCodBco = New System.Windows.Forms.TextBox()
+        Me.LblNCheque = New System.Windows.Forms.Label()
+        Me.BtnCMC = New System.Windows.Forms.Button()
+        Me.TxtNCheque = New System.Windows.Forms.TextBox()
         Me.Panel1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -40,9 +40,9 @@ Partial Class Micr
         Me.Panel1.BackColor = System.Drawing.SystemColors.ScrollBar
         Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.Panel1.Controls.Add(Me.Label1)
-        Me.Panel1.Controls.Add(Me.TextBox2)
+        Me.Panel1.Controls.Add(Me.TxtCtaCorriente)
         Me.Panel1.Controls.Add(Me.LblCodPlza)
-        Me.Panel1.Controls.Add(Me.TextBox1)
+        Me.Panel1.Controls.Add(Me.TxtCodPlza)
         Me.Panel1.Controls.Add(Me.LblCodBco)
         Me.Panel1.Controls.Add(Me.TxtCodBco)
         Me.Panel1.Controls.Add(Me.LblNCheque)
@@ -53,34 +53,53 @@ Partial Class Micr
         Me.Panel1.Size = New System.Drawing.Size(405, 114)
         Me.Panel1.TabIndex = 0
         '
-        'TxtNCheque
+        'Label1
         '
-        Me.TxtNCheque.Location = New System.Drawing.Point(12, 42)
-        Me.TxtNCheque.MaxLength = 7
-        Me.TxtNCheque.Multiline = True
-        Me.TxtNCheque.Name = "TxtNCheque"
-        Me.TxtNCheque.Size = New System.Drawing.Size(87, 27)
-        Me.TxtNCheque.TabIndex = 0
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.Location = New System.Drawing.Point(231, 23)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(85, 13)
+        Me.Label1.TabIndex = 8
+        Me.Label1.Text = "Cta. Corriente"
         '
-        'BtnCMC
+        'TxtCtaCorriente
         '
-        Me.BtnCMC.Location = New System.Drawing.Point(142, 79)
-        Me.BtnCMC.Name = "BtnCMC"
-        Me.BtnCMC.Size = New System.Drawing.Size(129, 23)
-        Me.BtnCMC.TabIndex = 4
-        Me.BtnCMC.Text = "Guardar"
-        Me.BtnCMC.UseVisualStyleBackColor = True
+        Me.TxtCtaCorriente.Location = New System.Drawing.Point(234, 42)
+        Me.TxtCtaCorriente.MaxLength = 11
+        Me.TxtCtaCorriente.Multiline = True
+        Me.TxtCtaCorriente.Name = "TxtCtaCorriente"
+        Me.TxtCtaCorriente.Size = New System.Drawing.Size(158, 27)
+        Me.TxtCtaCorriente.TabIndex = 3
         '
-        'LblNCheque
+        'LblCodPlza
         '
-        Me.LblNCheque.AutoSize = True
-        Me.LblNCheque.Enabled = False
-        Me.LblNCheque.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblNCheque.Location = New System.Drawing.Point(16, 23)
-        Me.LblNCheque.Name = "LblNCheque"
-        Me.LblNCheque.Size = New System.Drawing.Size(78, 13)
-        Me.LblNCheque.TabIndex = 2
-        Me.LblNCheque.Text = "Nro. Cheque"
+        Me.LblCodPlza.AutoSize = True
+        Me.LblCodPlza.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblCodPlza.Location = New System.Drawing.Point(166, 23)
+        Me.LblCodPlza.Name = "LblCodPlza"
+        Me.LblCodPlza.Size = New System.Drawing.Size(65, 13)
+        Me.LblCodPlza.TabIndex = 7
+        Me.LblCodPlza.Text = "Cod. Plza."
+        '
+        'TxtCodPlza
+        '
+        Me.TxtCodPlza.Location = New System.Drawing.Point(169, 42)
+        Me.TxtCodPlza.MaxLength = 4
+        Me.TxtCodPlza.Multiline = True
+        Me.TxtCodPlza.Name = "TxtCodPlza"
+        Me.TxtCodPlza.Size = New System.Drawing.Size(60, 27)
+        Me.TxtCodPlza.TabIndex = 2
+        '
+        'LblCodBco
+        '
+        Me.LblCodBco.AutoSize = True
+        Me.LblCodBco.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblCodBco.Location = New System.Drawing.Point(101, 23)
+        Me.LblCodBco.Name = "LblCodBco"
+        Me.LblCodBco.Size = New System.Drawing.Size(63, 13)
+        Me.LblCodBco.TabIndex = 6
+        Me.LblCodBco.Text = "Cod. Bco."
         '
         'TxtCodBco
         '
@@ -91,55 +110,33 @@ Partial Class Micr
         Me.TxtCodBco.Size = New System.Drawing.Size(60, 27)
         Me.TxtCodBco.TabIndex = 1
         '
-        'LblCodBco
+        'LblNCheque
         '
-        Me.LblCodBco.AutoSize = True
-        Me.LblCodBco.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblCodBco.Location = New System.Drawing.Point(101, 23)
-        Me.LblCodBco.Name = "LblCodBco"
-        Me.LblCodBco.Size = New System.Drawing.Size(63, 13)
-        Me.LblCodBco.TabIndex = 7
-        Me.LblCodBco.Text = "Cod. Bco."
+        Me.LblNCheque.AutoSize = True
+        Me.LblNCheque.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LblNCheque.Location = New System.Drawing.Point(16, 23)
+        Me.LblNCheque.Name = "LblNCheque"
+        Me.LblNCheque.Size = New System.Drawing.Size(78, 13)
+        Me.LblNCheque.TabIndex = 5
+        Me.LblNCheque.Text = "Nro. Cheque"
         '
-        'LblCodPlza
+        'BtnCMC
         '
-        Me.LblCodPlza.AutoSize = True
-        Me.LblCodPlza.Enabled = False
-        Me.LblCodPlza.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblCodPlza.Location = New System.Drawing.Point(166, 23)
-        Me.LblCodPlza.Name = "LblCodPlza"
-        Me.LblCodPlza.Size = New System.Drawing.Size(65, 13)
-        Me.LblCodPlza.TabIndex = 9
-        Me.LblCodPlza.Text = "Cod. Plza."
+        Me.BtnCMC.Location = New System.Drawing.Point(142, 79)
+        Me.BtnCMC.Name = "BtnCMC"
+        Me.BtnCMC.Size = New System.Drawing.Size(129, 23)
+        Me.BtnCMC.TabIndex = 4
+        Me.BtnCMC.Text = "Guardar"
+        Me.BtnCMC.UseVisualStyleBackColor = True
         '
-        'TextBox1
+        'TxtNCheque
         '
-        Me.TextBox1.Location = New System.Drawing.Point(169, 42)
-        Me.TextBox1.MaxLength = 4
-        Me.TextBox1.Multiline = True
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(60, 27)
-        Me.TextBox1.TabIndex = 2
-        '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Enabled = False
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(231, 23)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(85, 13)
-        Me.Label1.TabIndex = 11
-        Me.Label1.Text = "Cta. Corriente"
-        '
-        'TextBox2
-        '
-        Me.TextBox2.Location = New System.Drawing.Point(234, 42)
-        Me.TextBox2.MaxLength = 11
-        Me.TextBox2.Multiline = True
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(158, 27)
-        Me.TextBox2.TabIndex = 3
+        Me.TxtNCheque.Location = New System.Drawing.Point(12, 42)
+        Me.TxtNCheque.MaxLength = 7
+        Me.TxtNCheque.Multiline = True
+        Me.TxtNCheque.Name = "TxtNCheque"
+        Me.TxtNCheque.Size = New System.Drawing.Size(87, 27)
+        Me.TxtNCheque.TabIndex = 0
         '
         'Micr
         '
@@ -166,7 +163,7 @@ Partial Class Micr
     Friend WithEvents LblCodBco As Label
     Friend WithEvents TxtCodBco As TextBox
     Friend WithEvents LblCodPlza As Label
-    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents TxtCodPlza As TextBox
     Friend WithEvents Label1 As Label
-    Friend WithEvents TextBox2 As TextBox
+    Friend WithEvents TxtCtaCorriente As TextBox
 End Class
