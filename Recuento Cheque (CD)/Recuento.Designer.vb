@@ -31,7 +31,6 @@ Partial Class Recuento
         Me.FrontPictureBox = New System.Windows.Forms.PictureBox()
         Me.BackPictureBox = New System.Windows.Forms.PictureBox()
         Me.PanelContainer = New System.Windows.Forms.Panel()
-        Me.BtnGuardar = New System.Windows.Forms.Button()
         Me.BtnBack = New System.Windows.Forms.Button()
         Me.BtnNext = New System.Windows.Forms.Button()
         Me.BtnFirst = New System.Windows.Forms.Button()
@@ -46,11 +45,21 @@ Partial Class Recuento
         Me.ToolTip2 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip3 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip4 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ToolTip5 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ToolTip6 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ToolTip7 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ToolTip8 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ActionPanel = New System.Windows.Forms.Panel()
+        Me.BtnRestart = New System.Windows.Forms.Button()
+        Me.BtnProcesar = New System.Windows.Forms.Button()
+        Me.BtnGuardar = New System.Windows.Forms.Button()
+        Me.BtnEliminar = New System.Windows.Forms.Button()
         Me.PpalLayoutPanel.SuspendLayout()
         Me.InnerLayoutPanel.SuspendLayout()
         CType(Me.FrontPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BackPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.PanelContainer.SuspendLayout()
+        Me.ActionPanel.SuspendLayout()
         Me.SuspendLayout()
         '
         'PpalLayoutPanel
@@ -59,9 +68,9 @@ Partial Class Recuento
         Me.PpalLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.89286!))
         Me.PpalLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.10714!))
         Me.PpalLayoutPanel.Controls.Add(Me.LblChcSerial, 0, 0)
-        Me.PpalLayoutPanel.Controls.Add(Me.LblChcCount, 1, 0)
         Me.PpalLayoutPanel.Controls.Add(Me.InnerLayoutPanel, 0, 1)
         Me.PpalLayoutPanel.Controls.Add(Me.PanelContainer, 1, 1)
+        Me.PpalLayoutPanel.Controls.Add(Me.LblChcCount, 1, 0)
         Me.PpalLayoutPanel.Location = New System.Drawing.Point(4, 5)
         Me.PpalLayoutPanel.Name = "PpalLayoutPanel"
         Me.PpalLayoutPanel.RowCount = 2
@@ -83,7 +92,6 @@ Partial Class Recuento
         '
         'LblChcCount
         '
-        Me.LblChcCount.AutoSize = True
         Me.LblChcCount.Dock = System.Windows.Forms.DockStyle.Fill
         Me.LblChcCount.Location = New System.Drawing.Point(598, 0)
         Me.LblChcCount.Name = "LblChcCount"
@@ -135,7 +143,7 @@ Partial Class Recuento
         'PanelContainer
         '
         Me.PanelContainer.BackColor = System.Drawing.SystemColors.ActiveBorder
-        Me.PanelContainer.Controls.Add(Me.BtnGuardar)
+        Me.PanelContainer.Controls.Add(Me.ActionPanel)
         Me.PanelContainer.Controls.Add(Me.BtnBack)
         Me.PanelContainer.Controls.Add(Me.BtnNext)
         Me.PanelContainer.Controls.Add(Me.BtnFirst)
@@ -148,19 +156,8 @@ Partial Class Recuento
         Me.PanelContainer.Controls.Add(Me.LblMonto)
         Me.PanelContainer.Location = New System.Drawing.Point(598, 42)
         Me.PanelContainer.Name = "PanelContainer"
-        Me.PanelContainer.Size = New System.Drawing.Size(183, 330)
+        Me.PanelContainer.Size = New System.Drawing.Size(183, 320)
         Me.PanelContainer.TabIndex = 3
-        '
-        'BtnGuardar
-        '
-        Me.BtnGuardar.Cursor = System.Windows.Forms.Cursors.Arrow
-        Me.BtnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.System
-        Me.BtnGuardar.Location = New System.Drawing.Point(11, 278)
-        Me.BtnGuardar.Name = "BtnGuardar"
-        Me.BtnGuardar.Size = New System.Drawing.Size(159, 34)
-        Me.BtnGuardar.TabIndex = 4
-        Me.BtnGuardar.Text = "Guardar"
-        Me.BtnGuardar.UseVisualStyleBackColor = True
         '
         'BtnBack
         '
@@ -168,7 +165,7 @@ Partial Class Recuento
         Me.BtnBack.Location = New System.Drawing.Point(51, 229)
         Me.BtnBack.Name = "BtnBack"
         Me.BtnBack.Size = New System.Drawing.Size(42, 30)
-        Me.BtnBack.TabIndex = 5
+        Me.BtnBack.TabIndex = 7
         Me.BtnBack.UseVisualStyleBackColor = True
         '
         'BtnNext
@@ -266,6 +263,56 @@ Partial Class Recuento
         Me.LblMonto.Text = "MONTO"
         Me.LblMonto.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         '
+        'ActionPanel
+        '
+        Me.ActionPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.ActionPanel.BackColor = System.Drawing.SystemColors.ButtonShadow
+        Me.ActionPanel.Controls.Add(Me.BtnRestart)
+        Me.ActionPanel.Controls.Add(Me.BtnProcesar)
+        Me.ActionPanel.Controls.Add(Me.BtnGuardar)
+        Me.ActionPanel.Controls.Add(Me.BtnEliminar)
+        Me.ActionPanel.Dock = System.Windows.Forms.DockStyle.Bottom
+        Me.ActionPanel.Location = New System.Drawing.Point(0, 280)
+        Me.ActionPanel.Name = "ActionPanel"
+        Me.ActionPanel.Size = New System.Drawing.Size(183, 40)
+        Me.ActionPanel.TabIndex = 8
+        '
+        'BtnRestart
+        '
+        Me.BtnRestart.Image = CType(resources.GetObject("BtnRestart.Image"), System.Drawing.Image)
+        Me.BtnRestart.Location = New System.Drawing.Point(10, 4)
+        Me.BtnRestart.Name = "BtnRestart"
+        Me.BtnRestart.Size = New System.Drawing.Size(42, 33)
+        Me.BtnRestart.TabIndex = 12
+        Me.BtnRestart.UseVisualStyleBackColor = True
+        '
+        'BtnProcesar
+        '
+        Me.BtnProcesar.Image = CType(resources.GetObject("BtnProcesar.Image"), System.Drawing.Image)
+        Me.BtnProcesar.Location = New System.Drawing.Point(51, 4)
+        Me.BtnProcesar.Name = "BtnProcesar"
+        Me.BtnProcesar.Size = New System.Drawing.Size(42, 33)
+        Me.BtnProcesar.TabIndex = 9
+        Me.BtnProcesar.UseVisualStyleBackColor = True
+        '
+        'BtnGuardar
+        '
+        Me.BtnGuardar.Image = CType(resources.GetObject("BtnGuardar.Image"), System.Drawing.Image)
+        Me.BtnGuardar.Location = New System.Drawing.Point(91, 4)
+        Me.BtnGuardar.Name = "BtnGuardar"
+        Me.BtnGuardar.Size = New System.Drawing.Size(42, 33)
+        Me.BtnGuardar.TabIndex = 10
+        Me.BtnGuardar.UseVisualStyleBackColor = True
+        '
+        'BtnEliminar
+        '
+        Me.BtnEliminar.Image = CType(resources.GetObject("BtnEliminar.Image"), System.Drawing.Image)
+        Me.BtnEliminar.Location = New System.Drawing.Point(131, 4)
+        Me.BtnEliminar.Name = "BtnEliminar"
+        Me.BtnEliminar.Size = New System.Drawing.Size(42, 33)
+        Me.BtnEliminar.TabIndex = 11
+        Me.BtnEliminar.UseVisualStyleBackColor = True
+        '
         'Recuento
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -284,6 +331,7 @@ Partial Class Recuento
         CType(Me.BackPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.PanelContainer.ResumeLayout(False)
         Me.PanelContainer.PerformLayout()
+        Me.ActionPanel.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -308,6 +356,14 @@ Partial Class Recuento
     Friend WithEvents ToolTip2 As ToolTip
     Friend WithEvents ToolTip3 As ToolTip
     Friend WithEvents ToolTip4 As ToolTip
-    Friend WithEvents BtnGuardar As Button
     Friend WithEvents LblChcSerial As Label
+    Friend WithEvents ToolTip5 As ToolTip
+    Friend WithEvents ToolTip6 As ToolTip
+    Friend WithEvents ToolTip7 As ToolTip
+    Friend WithEvents ToolTip8 As ToolTip
+    Friend WithEvents ActionPanel As Panel
+    Friend WithEvents BtnRestart As Button
+    Friend WithEvents BtnProcesar As Button
+    Friend WithEvents BtnGuardar As Button
+    Friend WithEvents BtnEliminar As Button
 End Class

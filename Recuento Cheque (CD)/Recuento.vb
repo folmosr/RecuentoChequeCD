@@ -416,6 +416,9 @@ Public Class Recuento
         BtnNext.Enabled = False
         BtnLast.Enabled = False
         BtnGuardar.Enabled = False
+        BtnEliminar.Enabled = False
+        BtnProcesar.Enabled = False
+        BtnRestart.Enabled = False
     End Sub
     Private Sub DesbloqueaDetalle()
         TxtMonto.Enabled = True
@@ -426,12 +429,19 @@ Public Class Recuento
         BtnNext.Enabled = True
         BtnLast.Enabled = True
         BtnGuardar.Enabled = True
+        BtnEliminar.Enabled = True
+        BtnProcesar.Enabled = True
+        BtnRestart.Enabled = True
     End Sub
     Private Sub SetTootlTips()
         ToolTip1.SetToolTip(BtnFirst, "Ir al primer cheque")
         ToolTip2.SetToolTip(BtnNext, "Ir al siguiente cheque")
         ToolTip3.SetToolTip(BtnBack, "Ir al cheque anterior")
         ToolTip4.SetToolTip(BtnLast, "Ir al último cheque")
+        ToolTip5.SetToolTip(BtnGuardar, "Agregar(+)")
+        ToolTip6.SetToolTip(BtnEliminar, "Eliminar cheque")
+        ToolTip7.SetToolTip(BtnProcesar, "Procesar cheques cargados")
+        ToolTip8.SetToolTip(BtnRestart, "Expulsar/Reiniciar proceso")
     End Sub
     Private Sub ReiniciaControlesDetalle()
         TxtMonto.Text = 0
@@ -791,5 +801,9 @@ Public Class Recuento
             Return
         End If
         TxtTotal.Text = (Convert.ToSingle(TxtMonto.Text) + Convert.ToSingle(TxtTotal.Text)).ToString("#,#.00#;(#,#.00#)")
+    End Sub
+
+    Private Sub PpalLayoutPanel_Paint(sender As Object, e As PaintEventArgs) Handles PpalLayoutPanel.Paint
+
     End Sub
 End Class
