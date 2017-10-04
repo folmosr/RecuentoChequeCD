@@ -30,7 +30,8 @@ Public Class Recuento
         ReiniciaControlesDetalle()
         BloqueaDetalle()
         Inicializador()
-        DigiAvanzada(9999)
+        DigiAvanzada(999)
+        MostrarPrimerChequeEnLista()
     End Sub
 
     Private Sub Inicializador()
@@ -374,7 +375,7 @@ Public Class Recuento
                     Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR))
                     FrontPictureBox.Image = DispImagenA
                     BackPictureBox.Image = DispImagenR
-                    LblChcSerial.Text = MICR
+                    'LblChcSerial.Text = MICR
                     LblChcCount.Text = DocsMin
                     'Imagen.Image = DispImagen
                     'Imagen.Visible = True
@@ -393,7 +394,6 @@ Public Class Recuento
             Next Ciclo
             MemoryRelease(lngMemHwndFront)
             MemoryRelease(lngMemHwndBack)
-            MostrarPrimerChequeEnLista()
         Else
             Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
         End If
@@ -403,9 +403,11 @@ Public Class Recuento
     End Sub
 
     Private Sub MostrarPrimerChequeEnLista()
-        Dim fCheque As Cheque = Modulo.ListaCheques.First()
-        SetDatosAControles()
-        DesbloqueaDetalle()
+        If (Modulo.ListaCheques.Count > 0) Then
+            Dim fCheque As Cheque = Modulo.ListaCheques.First()
+            SetDatosAControles()
+            DesbloqueaDetalle()
+        End If
     End Sub
     Private Sub BloqueaDetalle()
         TxtMonto.Enabled = False
@@ -419,6 +421,7 @@ Public Class Recuento
         BtnEliminar.Enabled = False
         BtnProcesar.Enabled = False
         BtnRestart.Enabled = False
+        BtnExpulsar.Enabled = False
     End Sub
     Private Sub DesbloqueaDetalle()
         TxtMonto.Enabled = True
@@ -432,6 +435,7 @@ Public Class Recuento
         BtnEliminar.Enabled = True
         BtnProcesar.Enabled = True
         BtnRestart.Enabled = True
+        BtnExpulsar.Enabled = True
     End Sub
     Private Sub SetTootlTips()
         ToolTip1.SetToolTip(BtnFirst, "Ir al primer cheque")
@@ -441,12 +445,17 @@ Public Class Recuento
         ToolTip5.SetToolTip(BtnGuardar, "Agregar(+)")
         ToolTip6.SetToolTip(BtnEliminar, "Eliminar cheque")
         ToolTip7.SetToolTip(BtnProcesar, "Procesar cheques cargados")
-        ToolTip8.SetToolTip(BtnRestart, "Expulsar/Reiniciar proceso")
+        ToolTip8.SetToolTip(BtnRestart, "Reiniciar proceso")
+        ToolTip9.SetToolTip(BtnExpulsar, "Expulsar")
     End Sub
     Private Sub ReiniciaControlesDetalle()
         TxtMonto.Text = 0
         TxtTotal.Text = "0.00"
         DtFecha.Value = Date.Now
+        FrontPictureBox.Image = Nothing
+        BackPictureBox.Image = Nothing
+        LblChcSerial.Text = Nothing
+        LblChcCount.Text = "0"
     End Sub
     Private Function SiguienteImagen(ByVal tipo As Integer) As Integer
         Dim ImageDir() As String
@@ -724,6 +733,7 @@ Public Class Recuento
         If (Not BtnBack.Enabled) Then
             BtnBack.Enabled = True
         End If
+        TxtMonto.Select()
     End Sub
     Private Function ActualizaCheque() As Boolean
         Dim currentDate As Date = DateTime.Now()
@@ -733,6 +743,7 @@ Public Class Recuento
             If (Not objCheque.Micr.IndexOf("?") > -1) Then
                 objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
                 objCheque.Fecha = DtFecha.Value
+                ActualizaTotal()
             Else
                 MessageBox.Show("Código CMC7 inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                 Micr.Show()
@@ -753,13 +764,13 @@ Public Class Recuento
         Return True
     End Function
 
-    Private Sub CalculaTotal()
-        Dim total As Single = 0
-        For Each objCheque As Cheque In Modulo.ListaCheques
-            total += objCheque.Monto
-        Next
-        TxtTotal.Text = total.ToString("#,#.00#;(#,#.00#)")
-    End Sub
+    'Private Sub CalculaTotal()
+    '    Dim total As Single = 0
+    '    For Each objCheque As Cheque In Modulo.ListaCheques
+    '        total += objCheque.Monto
+    '    Next
+    '    TxtTotal.Text = total.ToString("#,#.00#;(#,#.00#)")
+    'End Sub
     Private Sub BtnFirst_Click(sender As Object, e As EventArgs) Handles BtnFirst.Click
         Modulo.Indice = 0
         SetDatosAControles()
@@ -800,10 +811,47 @@ Public Class Recuento
             TxtMonto.Select()
             Return
         End If
-        TxtTotal.Text = (Convert.ToSingle(TxtMonto.Text) + Convert.ToSingle(TxtTotal.Text)).ToString("#,#.00#;(#,#.00#)")
+    End Sub
+    Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
+        Modulo.ListaCheques.RemoveAt(Indice)
+        ReiniciaControlesDetalle()
+        If ((Indice = 0) And (Indice = ListaCheques.Count)) Then
+            MessageBox.Show("Ya no hay cheques que mostrar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+        ElseIf (Modulo.Indice = Modulo.ListaCheques.Count) Then
+            Modulo.Indice = 0
+        Else
+            SetDatosAControles()
+            ActualizaTotal()
+        End If
+    End Sub
+    Private Sub ActualizaTotal()
+        Dim sum As Single = 0
+        sum = Modulo.ListaCheques.Sum(Function(item) item.Monto)
+        TxtTotal.Text = sum.ToString("#,#.00#;(#,#.00#)")
     End Sub
 
-    Private Sub PpalLayoutPanel_Paint(sender As Object, e As PaintEventArgs) Handles PpalLayoutPanel.Paint
+    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
+        Dim len As Int32 = Modulo.ListaCheques.Count
+        DigiAvanzada(999)
+        Modulo.Indice = len
+        SetDatosAControles()
+    End Sub
 
+    Private Sub BtnRestart_Click(sender As Object, e As EventArgs) Handles BtnRestart.Click
+        Dim result As Integer = MessageBox.Show("¿Está seguro de reliazar esta acción? Perderá toda la información.", "Reinicar Proceso", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1)
+        If result = DialogResult.Yes Then
+            Modulo.ListaCheques.Clear()
+            Modulo.DocsMin = 0
+            ReiniciaControlesDetalle()
+            DigiAvanzada(999)
+            MostrarPrimerChequeEnLista()
+        End If
+    End Sub
+
+    Private Sub BtnExpulsar_Click(sender As Object, e As EventArgs) Handles BtnExpulsar.Click
+        BtnExpulsar.Enabled = False
+        BUICEjectDocument()
+        BtnExpulsar.Enabled = True
     End Sub
 End Class
+
