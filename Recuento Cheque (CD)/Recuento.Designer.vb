@@ -31,6 +31,7 @@ Partial Class Recuento
         Me.BackPictureBox = New System.Windows.Forms.PictureBox()
         Me.PanelContainer = New System.Windows.Forms.Panel()
         Me.ActionPanel = New System.Windows.Forms.Panel()
+        Me.BtnExpulsar = New System.Windows.Forms.Button()
         Me.BtnRestart = New System.Windows.Forms.Button()
         Me.BtnProcesar = New System.Windows.Forms.Button()
         Me.BtnGuardar = New System.Windows.Forms.Button()
@@ -54,7 +55,6 @@ Partial Class Recuento
         Me.ToolTip6 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip7 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip8 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.BtnExpulsar = New System.Windows.Forms.Button()
         Me.ToolTip9 = New System.Windows.Forms.ToolTip(Me.components)
         Me.PpalLayoutPanel.SuspendLayout()
         Me.InnerLayoutPanel.SuspendLayout()
@@ -164,6 +164,15 @@ Partial Class Recuento
         Me.ActionPanel.Name = "ActionPanel"
         Me.ActionPanel.Size = New System.Drawing.Size(183, 75)
         Me.ActionPanel.TabIndex = 8
+        '
+        'BtnExpulsar
+        '
+        Me.BtnExpulsar.Image = CType(resources.GetObject("BtnExpulsar.Image"), System.Drawing.Image)
+        Me.BtnExpulsar.Location = New System.Drawing.Point(87, 39)
+        Me.BtnExpulsar.Name = "BtnExpulsar"
+        Me.BtnExpulsar.Size = New System.Drawing.Size(42, 33)
+        Me.BtnExpulsar.TabIndex = 13
+        Me.BtnExpulsar.UseVisualStyleBackColor = True
         '
         'BtnRestart
         '
@@ -315,15 +324,6 @@ Partial Class Recuento
         Me.LblChcCount.Text = "1/N"
         Me.LblChcCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.LblChcCount.UseMnemonic = False
-        '
-        'BtnExpulsar
-        '
-        Me.BtnExpulsar.Image = CType(resources.GetObject("BtnExpulsar.Image"), System.Drawing.Image)
-        Me.BtnExpulsar.Location = New System.Drawing.Point(87, 39)
-        Me.BtnExpulsar.Name = "BtnExpulsar"
-        Me.BtnExpulsar.Size = New System.Drawing.Size(42, 33)
-        Me.BtnExpulsar.TabIndex = 13
-        Me.BtnExpulsar.UseVisualStyleBackColor = True
         '
         'Recuento
         '

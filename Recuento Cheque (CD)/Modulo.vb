@@ -1,4 +1,7 @@
-﻿Module Modulo
+﻿Imports System.ComponentModel
+Imports System.Reflection
+
+Module Modulo
     Public PathInicio As String
     Public PathImagenes As String
     Public PathImagenesSucursal As String
@@ -77,4 +80,26 @@
     Public NINE As Int16 = 57
     Public NOT_FOUND As Int16 = -1
 
+    <System.Runtime.CompilerServices.Extension()>
+    Public Function ConvertToDataTable(Of T)(ByVal list As IList(Of T)) As DataTable
+        Dim td As New DataTable
+        Dim entityType As Type = GetType(T)
+        Dim properties As PropertyDescriptorCollection = TypeDescriptor.GetProperties(entityType)
+
+        For Each prop As PropertyDescriptor In properties
+            td.Columns.Add(prop.Name)
+        Next
+
+        For Each item As T In list
+            Dim row As DataRow = td.NewRow()
+
+            For Each prop As PropertyDescriptor In properties
+                row(prop.Name) = prop.GetValue(item)
+            Next
+
+            td.Rows.Add(row)
+        Next
+
+        Return td
+    End Function
 End Module

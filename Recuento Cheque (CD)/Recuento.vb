@@ -738,7 +738,7 @@ Public Class Recuento
     Private Function ActualizaCheque() As Boolean
         Dim currentDate As Date = DateTime.Now()
         Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
-        If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res)) Then
+        If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res) And (isValidMonto())) Then
             Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             If (Not objCheque.Micr.IndexOf("?") > -1) Then
                 objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
@@ -799,19 +799,19 @@ Public Class Recuento
         End If
     End Sub
 
-    Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
-        If (TxtMonto.Text = 0) Then
-            MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-            TxtMonto.Select()
-            Return
-        End If
-        Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
-        If (Not pattern.IsMatch(TxtMonto.Text)) Then
-            MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-            TxtMonto.Select()
-            Return
-        End If
-    End Sub
+    'Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
+    '    If (TxtMonto.Text = 0) Then
+    '        MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+    '        TxtMonto.Select()
+    '        Return
+    '    End If
+    '    Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
+    '    If (Not pattern.IsMatch(TxtMonto.Text)) Then
+    '        MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+    '        TxtMonto.Select()
+    '        Return
+    '    End If
+    'End Sub
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         Modulo.ListaCheques.RemoveAt(Indice)
         ReiniciaControlesDetalle()
@@ -853,5 +853,34 @@ Public Class Recuento
         BUICEjectDocument()
         BtnExpulsar.Enabled = True
     End Sub
-End Class
 
+    Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
+        If (ActualizaCheque()) Then
+            Dim Db As DataAccesss = New DataAccesss()
+            If (Db.Process(ListaCheques.ConvertToDataTable())) Then
+                MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                Application.Exit()
+            End If
+        End If
+    End Sub
+    Private Function IsValidMonto() As Boolean
+        If (TxtMonto.Text = 0) Then
+            MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            TxtMonto.Select()
+            Return False
+        End If
+        Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
+        If (Not pattern.IsMatch(TxtMonto.Text)) Then
+            MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            TxtMonto.Select()
+            Return False
+        End If
+        Return True
+        End Function
+
+    Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
+        If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
+            TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
+        End If
+    End Sub
+End Class
