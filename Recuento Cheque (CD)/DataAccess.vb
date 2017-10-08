@@ -1,6 +1,9 @@
 ﻿Imports System.Data.SqlClient
 
-Public Class DataAccesss : Inherits ConnectionAccess
+Public Class DataAccesss
+    Inherits ConnectionAccess
+
+#Region "Methods"
 
     Public Function Process(ByVal Dt As DataTable) As Boolean
         Using connection As SqlConnection =
@@ -27,5 +30,7 @@ Public Class DataAccesss : Inherits ConnectionAccess
         End Using
         Return True
     End Function
+
+#End Region 'Methods
 
 End Class

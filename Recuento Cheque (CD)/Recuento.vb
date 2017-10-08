@@ -1,82 +1,172 @@
 ﻿Imports System.IO
 Imports System.Text
 Imports System.Text.RegularExpressions
+
 Imports Recuento_Cheque__CD_
 
 Public Class Recuento
-    'Private _lista As List(Of Cheque)
-    'Private _Modulo.Indice As Int16
 
-    'Public Property Modulo.ListaCheques As List(Of Cheque)
-    '    Get
-    '        Return _lista
-    '    End Get
-    '    Set(value As List(Of Cheque))
-    '        _lista = value
-    '    End Set
-    'End Property
+#Region "Private Methods"
 
-    'Public Property Modulo.Indice As Short
-    '    Get
-    '        Return Modulo.Indice
-    '    End Get
-    '    Set(value As Short)
-    '        _Modulo.Indice = value
-    '    End Set
-    'End Property
+    Private Function ActualizaCheque() As Boolean
+        Dim currentDate As Date = DateTime.Now()
+        Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
+        If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res) And (IsValidMonto())) Then
+            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
+            If (Not objCheque.Micr.IndexOf("?") > -1) Then
+                objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
+                objCheque.Fecha = DtFecha.Value
+                ActualizaTotal()
+            Else
+                MessageBox.Show("Código CMC7 inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                Micr.Show()
+                Return False
+            End If
+        Else
+            If (Not res) Then
+                MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                DtFecha.Select()
+                Return False
+            End If
+        End If
+        Return True
+    End Function
 
-    Private Sub Recuento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        SetTootlTips()
-        ReiniciaControlesDetalle()
-        BloqueaDetalle()
-        Inicializador()
-        DigiAvanzada(999)
-        MostrarPrimerChequeEnLista()
+    Private Sub ActualizaTotal()
+        Dim sum As Single = 0
+        sum = Modulo.ListaCheques.Sum(Function(item) item.Monto)
+        TxtTotal.Text = sum.ToString("#,#.00#;(#,#.00#)")
     End Sub
 
-    Private Sub Inicializador()
-        Dim Inicializado As Boolean
-        Dim Reintento As MsgBoxResult
-        Modulo.Indice = 0
-        PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
-        PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
-        If (Not Directory.Exists(PathImagenes)) Then Directory.CreateDirectory(PathImagenes)
+    Private Sub BloqueaDetalle()
+        TxtMonto.Enabled = False
+        DtFecha.Enabled = False
+        TxtTotal.Enabled = False
+        BtnFirst.Enabled = False
+        BtnBack.Enabled = False
+        BtnNext.Enabled = False
+        BtnLast.Enabled = False
+        BtnGuardar.Enabled = False
+        BtnEliminar.Enabled = False
+        BtnProcesar.Enabled = False
+        BtnRestart.Enabled = False
+        BtnExpulsar.Enabled = False
+    End Sub
 
-        'PathImagenesSucursal = Path.GetDirectoryName(PathInicio) + "\" + "ImagenesS" + "\"
-        ' If (Not Directory.Exists(PathImagenesSucursal)) Then Directory.CreateDirectory(PathImagenesSucursal)
-        Me.Show()
-        Application.DoEvents()
-        Sleep(2000)
-        Inicializado = False
-        Do
-            Res = BUICInit()
-            If (Res = 1) Then
-                Dim ND, NT As Integer
-                Dim aa, bb, cc As Byte
-                Dim dd As String = Space(255)
-                Dim ee As String = Space(255)
-                Dim ff As String = Space(255)
-                Dim SN As String = Space(255)
+    Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click
+        If (ActualizaCheque()) Then
+            Modulo.Indice -= 1
+            Modulo.Indice = If(Modulo.Indice < 0, 0, Modulo.Indice)
 
-                CX30 = False
-                TS240 = False
-                Franqueo = 0
-                Inicializado = True
-                ScannerType = GetScannerType()
-                BUICGetScannerSerialNumber(SN, ND, NT)
-                BUICGetScannerInfo(aa, bb, dd, ee, ff, cc)
-                ee = ee.Substring(0, ee.IndexOf(Chr(0)))
-                SN = SN.Substring(0, SN.IndexOf(Chr(0)))
-                Me.Text = "DCC - AMM Demo >>>" + ee.Trim() + " (" + SN + ")"
-                Modulo.ListaCheques = New List(Of Cheque)
-            Else
-                Reintento = MessageBox.Show("No se encontró digitalizador !, Desea reintentar ?", "Inicialización", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            SetDatosAControles()
+            If (Modulo.Indice = 0) Then
+                BtnBack.Enabled = False
             End If
-        Loop While (Res <> 1 And Reintento = MsgBoxResult.Yes)
-        If (Not Inicializado) Then
-            Reintento = MessageBox.Show("No podrá digitalizar documentos !", "Inicialización", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            If (Not BtnNext.Enabled) Then
+                BtnNext.Enabled = True
+            End If
         End If
     End Sub
+
+    'Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
+    '    If (TxtMonto.Text = 0) Then
+    '        MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+    '        TxtMonto.Select()
+    '        Return
+    '    End If
+    '    Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
+    '    If (Not pattern.IsMatch(TxtMonto.Text)) Then
+    '        MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+    '        TxtMonto.Select()
+    '        Return
+    '    End If
+    'End Sub
+    Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
+        Modulo.ListaCheques.RemoveAt(Indice)
+        ReiniciaControlesDetalle()
+        If ((Indice = 0) And (Indice = ListaCheques.Count)) Then
+            MessageBox.Show("Ya no hay cheques que mostrar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+        ElseIf (Modulo.Indice = Modulo.ListaCheques.Count) Then
+            Modulo.Indice = 0
+        Else
+            SetDatosAControles()
+            ActualizaTotal()
+        End If
+    End Sub
+
+    Private Sub BtnExpulsar_Click(sender As Object, e As EventArgs) Handles BtnExpulsar.Click
+        BtnExpulsar.Enabled = False
+        BUICEjectDocument()
+        BtnExpulsar.Enabled = True
+    End Sub
+
+    'Private Sub CalculaTotal()
+    '    Dim total As Single = 0
+    '    For Each objCheque As Cheque In Modulo.ListaCheques
+    '        total += objCheque.Monto
+    '    Next
+    '    TxtTotal.Text = total.ToString("#,#.00#;(#,#.00#)")
+    'End Sub
+    Private Sub BtnFirst_Click(sender As Object, e As EventArgs) Handles BtnFirst.Click
+        Modulo.Indice = 0
+        SetDatosAControles()
+    End Sub
+
+    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
+        Dim len As Int32 = Modulo.ListaCheques.Count
+        DigiAvanzada(999)
+        Modulo.Indice = len
+        SetDatosAControles()
+    End Sub
+
+    Private Sub BtnLast_Click(sender As Object, e As EventArgs) Handles BtnLast.Click
+        Modulo.Indice = (Modulo.ListaCheques.Count - 1)
+        SetDatosAControles()
+    End Sub
+
+    Private Sub BtnNext_Click(sender As Object, e As EventArgs) Handles BtnNext.Click
+        If (ActualizaCheque()) Then
+            Modulo.Indice += 1
+            SetDatosAControles()
+        End If
+    End Sub
+
+    Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
+        If (ActualizaCheque()) Then
+            Dim Db As DataAccesss = New DataAccesss()
+            If (Db.Process(ListaCheques.ConvertToDataTable())) Then
+                MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                Application.Exit()
+            End If
+        End If
+    End Sub
+
+    Private Sub BtnRestart_Click(sender As Object, e As EventArgs) Handles BtnRestart.Click
+        Dim result As Integer = MessageBox.Show("¿Está seguro de reliazar esta acción? Perderá toda la información.", "Reinicar Proceso", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1)
+        If result = DialogResult.Yes Then
+            Modulo.ListaCheques.Clear()
+            Modulo.DocsMin = 0
+            ReiniciaControlesDetalle()
+            DigiAvanzada(999)
+            MostrarPrimerChequeEnLista()
+        End If
+    End Sub
+
+    Private Sub DesbloqueaDetalle()
+        TxtMonto.Enabled = True
+        DtFecha.Enabled = True
+        TxtTotal.Enabled = True
+        BtnFirst.Enabled = True
+        BtnBack.Enabled = True
+        BtnNext.Enabled = True
+        BtnLast.Enabled = True
+        BtnGuardar.Enabled = True
+        BtnEliminar.Enabled = True
+        BtnProcesar.Enabled = True
+        BtnRestart.Enabled = True
+        BtnExpulsar.Enabled = True
+    End Sub
+
     Private Sub DigiAvanzada(ByVal DocNum As Integer)
         Dim IndicesTif As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesTif.Dat", True, Encoding.Default)
         Dim IndicesJpg As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesJpg.Dat", True, Encoding.Default)
@@ -117,7 +207,7 @@ Public Class Recuento
         Dim SiguienteI As Integer
 
         Dim flag As Boolean = False
-
+        Dim retry As Int16 = 0
         ' Batch
         ' =====
         'If (CBBatch.Checked) Then
@@ -385,107 +475,68 @@ Public Class Recuento
                 Else
                     'Timer1.Enabled = False
                     If (Not flag) Then
-                        Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                        Exit For
-                    Else
-                        Exit For
+                        Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                        If (Ret = MsgBoxResult.Retry) Then
+                            retry = 1
+                        Else
+                            retry = 2
+                        End If
                     End If
+                    Exit For
                 End If
             Next Ciclo
             MemoryRelease(lngMemHwndFront)
             MemoryRelease(lngMemHwndBack)
+            If (retry = 1) Then
+                Reintentar(IndicesTif, IndicesJpg, IndicesBmp)
+            ElseIf (retry = 2) Then
+                Application.Exit()
+            End If
         Else
-            Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            If (Ret) Then
+                Reintentar(IndicesTif, IndicesJpg, IndicesBmp)
+            Else
+                Application.Exit()
+            End If
         End If
         IndicesTif.Close()
         IndicesJpg.Close()
         IndicesBmp.Close()
     End Sub
 
-    Private Sub MostrarPrimerChequeEnLista()
-        If (Modulo.ListaCheques.Count > 0) Then
-            Dim fCheque As Cheque = Modulo.ListaCheques.First()
-            SetDatosAControles()
-            DesbloqueaDetalle()
+    Private Sub Reintentar(indicesTif As StreamWriter, indicesJpg As StreamWriter, indicesBmp As StreamWriter)
+        indicesTif.Close()
+        indicesJpg.Close()
+        indicesBmp.Close()
+        DigiAvanzada(999)
+        MostrarPrimerChequeEnLista()
+    End Sub
+
+    Private Sub DtFecha_Keypress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles DtFecha.KeyPress
+        Dim keyvalue As Int32 = Asc(e.KeyChar)
+        If (keyvalue = Modulo.ENTER) Then
+            If (BtnNext.Enabled) Then
+                BtnNext.Select()
+            Else
+                If (BtnBack.Enabled) Then
+                    BtnBack.Select()
+                Else
+                    BtnNext.Select()
+                End If
+            End If
         End If
     End Sub
-    Private Sub BloqueaDetalle()
-        TxtMonto.Enabled = False
-        DtFecha.Enabled = False
-        TxtTotal.Enabled = False
-        BtnFirst.Enabled = False
-        BtnBack.Enabled = False
-        BtnNext.Enabled = False
-        BtnLast.Enabled = False
-        BtnGuardar.Enabled = False
-        BtnEliminar.Enabled = False
-        BtnProcesar.Enabled = False
-        BtnRestart.Enabled = False
-        BtnExpulsar.Enabled = False
-    End Sub
-    Private Sub DesbloqueaDetalle()
-        TxtMonto.Enabled = True
-        DtFecha.Enabled = True
-        TxtTotal.Enabled = True
-        BtnFirst.Enabled = True
-        BtnBack.Enabled = True
-        BtnNext.Enabled = True
-        BtnLast.Enabled = True
-        BtnGuardar.Enabled = True
-        BtnEliminar.Enabled = True
-        BtnProcesar.Enabled = True
-        BtnRestart.Enabled = True
-        BtnExpulsar.Enabled = True
-    End Sub
-    Private Sub SetTootlTips()
-        ToolTip1.SetToolTip(BtnFirst, "Ir al primer cheque")
-        ToolTip2.SetToolTip(BtnNext, "Ir al siguiente cheque")
-        ToolTip3.SetToolTip(BtnBack, "Ir al cheque anterior")
-        ToolTip4.SetToolTip(BtnLast, "Ir al último cheque")
-        ToolTip5.SetToolTip(BtnGuardar, "Agregar(+)")
-        ToolTip6.SetToolTip(BtnEliminar, "Eliminar cheque")
-        ToolTip7.SetToolTip(BtnProcesar, "Procesar cheques cargados")
-        ToolTip8.SetToolTip(BtnRestart, "Reiniciar proceso")
-        ToolTip9.SetToolTip(BtnExpulsar, "Expulsar")
-    End Sub
-    Private Sub ReiniciaControlesDetalle()
-        TxtMonto.Text = 0
-        TxtTotal.Text = "0.00"
-        DtFecha.Value = Date.Now
-        FrontPictureBox.Image = Nothing
-        BackPictureBox.Image = Nothing
-        LblChcSerial.Text = Nothing
-        LblChcCount.Text = "0"
-    End Sub
-    Private Function SiguienteImagen(ByVal tipo As Integer) As Integer
-        Dim ImageDir() As String
-        Dim archivo As String
-        Dim numero As Integer
 
-        numero = 1
-        archivo = ""
-        Select Case tipo
-            Case 1
-                ImageDir = Directory.GetFiles(PathImagenes, "*.Tif")
-                If (ImageDir.Length > 0) Then
-                    archivo = Path.GetFileName(ImageDir(ImageDir.Length - 1))
-                    numero = Convert.ToInt16(archivo.Substring(1, 5)) + 1
-                End If
-            Case 2
-                ImageDir = Directory.GetFiles(PathImagenes, "*.Jpg")
-                If (ImageDir.Length > 0) Then
-                    archivo = Path.GetFileName(ImageDir(ImageDir.Length - 1))
-                    numero = Convert.ToInt16(archivo.Substring(1, 5)) + 1
-                End If
-            Case 3
-                ImageDir = Directory.GetFiles(PathImagenes, "*.Bmp")
-                If (ImageDir.Length > 0) Then
-                    archivo = Path.GetFileName(ImageDir(ImageDir.Length - 1))
-                    numero = Convert.ToInt16(archivo.Substring(1, 5)) + 1
-                End If
-        End Select
-        Return (numero)
-    End Function
+    Private Sub DtFecha_ValueChanged(sender As Object, e As EventArgs) Handles DtFecha.ValueChanged
+        Dim currentDate As Date = DateTime.Now()
+        Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
+        If (Not res) Then
+            MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            DtFecha.Select()
+        End If
+    End Sub
+
     Private Function Errores(ByVal elerror As Integer) As String
         Dim errmsg As String
 
@@ -690,179 +741,50 @@ Public Class Recuento
         Return (errmsg)
     End Function
 
-    Private Sub BtnNext_Click(sender As Object, e As EventArgs) Handles BtnNext.Click
-        If (ActualizaCheque()) Then
-            Modulo.Indice += 1
-            SetDatosAControles()
-        End If
-    End Sub
-
-    Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click
-        If (ActualizaCheque()) Then
-            Modulo.Indice -= 1
-            Modulo.Indice = If(Modulo.Indice < 0, 0, Modulo.Indice)
-
-            SetDatosAControles()
-            If (Modulo.Indice = 0) Then
-                BtnBack.Enabled = False
-            End If
-            If (Not BtnNext.Enabled) Then
-                BtnNext.Enabled = True
-            End If
-        End If
-    End Sub
-
-    Private Sub SetDatosAControles()
-        If (Modulo.Indice < Modulo.ListaCheques.Count) Then
-            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
-            Dim posicion As String
-            posicion = If(Modulo.Indice = 0, "1", (Modulo.Indice + 1).ToString())
-            LblChcCount.Text = posicion & "/" & Convert.ToString(Modulo.ListaCheques.Count)
-            LblChcSerial.Text = objCheque.Micr
-            FrontPictureBox.Image = objCheque.ImagenABitmap
-            BackPictureBox.Image = objCheque.ImagenRBitmap
-            TxtMonto.Text = objCheque.Monto.ToString("#,#.00#;(#,#.00#)")
-            DtFecha.Value = objCheque.Fecha
-        Else
-            Modulo.Indice -= 1
-            SetDatosAControles()
-        End If
-        If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
-            BtnNext.Enabled = False
-        End If
-        If (Not BtnBack.Enabled) Then
-            BtnBack.Enabled = True
-        End If
-        TxtMonto.Select()
-    End Sub
-    Private Function ActualizaCheque() As Boolean
-        Dim currentDate As Date = DateTime.Now()
-        Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
-        If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res) And (isValidMonto())) Then
-            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
-            If (Not objCheque.Micr.IndexOf("?") > -1) Then
-                objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
-                objCheque.Fecha = DtFecha.Value
-                ActualizaTotal()
-            Else
-                MessageBox.Show("Código CMC7 inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                Micr.Show()
-                Return False
-            End If
-        Else
-            If (Convert.ToSingle(TxtMonto.Text) = 0) Then
-                MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                TxtMonto.Select()
-                Return False
-            End If
-            If (Not res) Then
-                MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                DtFecha.Select()
-                Return False
-            End If
-        End If
-        Return True
-    End Function
-
-    'Private Sub CalculaTotal()
-    '    Dim total As Single = 0
-    '    For Each objCheque As Cheque In Modulo.ListaCheques
-    '        total += objCheque.Monto
-    '    Next
-    '    TxtTotal.Text = total.ToString("#,#.00#;(#,#.00#)")
-    'End Sub
-    Private Sub BtnFirst_Click(sender As Object, e As EventArgs) Handles BtnFirst.Click
+    Private Sub Inicializador()
+        Dim Inicializado As Boolean
+        Dim Reintento As MsgBoxResult
         Modulo.Indice = 0
-        SetDatosAControles()
-    End Sub
+        PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
+        PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
+        If (Not Directory.Exists(PathImagenes)) Then Directory.CreateDirectory(PathImagenes)
 
-    Private Sub BtnLast_Click(sender As Object, e As EventArgs) Handles BtnLast.Click
-        Modulo.Indice = (Modulo.ListaCheques.Count - 1)
-        SetDatosAControles()
-    End Sub
+        'PathImagenesSucursal = Path.GetDirectoryName(PathInicio) + "\" + "ImagenesS" + "\"
+        ' If (Not Directory.Exists(PathImagenesSucursal)) Then Directory.CreateDirectory(PathImagenesSucursal)
+        Me.Show()
+        Application.DoEvents()
+        Sleep(2000)
+        Inicializado = False
+        Do
+            Res = BUICInit()
+            If (Res = 1) Then
+                Dim ND, NT As Integer
+                Dim aa, bb, cc As Byte
+                Dim dd As String = Space(255)
+                Dim ee As String = Space(255)
+                Dim ff As String = Space(255)
+                Dim SN As String = Space(255)
 
-    Private Sub DtFecha_ValueChanged(sender As Object, e As EventArgs) Handles DtFecha.ValueChanged
-        Dim currentDate As Date = DateTime.Now()
-        Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
-        If (Not res) Then
-            MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-            DtFecha.Select()
-        End If
-    End Sub
-
-    Private Sub TxtMonto_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles TxtMonto.KeyPress
-        Dim keyvalue As Int32 = Asc(e.KeyChar)
-        If ((keyvalue = Modulo.BACKSPACE) Or (((keyvalue >= Modulo.ZERO) And (keyvalue <= Modulo.NINE)) Or (keyvalue = Modulo.DECIMAL_POINT) Or (keyvalue = Modulo.THOUNSAND_POINT))) Then
-            e.Handled = False
-        Else
-            e.Handled = True
-        End If
-    End Sub
-
-    'Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
-    '    If (TxtMonto.Text = 0) Then
-    '        MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-    '        TxtMonto.Select()
-    '        Return
-    '    End If
-    '    Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
-    '    If (Not pattern.IsMatch(TxtMonto.Text)) Then
-    '        MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-    '        TxtMonto.Select()
-    '        Return
-    '    End If
-    'End Sub
-    Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
-        Modulo.ListaCheques.RemoveAt(Indice)
-        ReiniciaControlesDetalle()
-        If ((Indice = 0) And (Indice = ListaCheques.Count)) Then
-            MessageBox.Show("Ya no hay cheques que mostrar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-        ElseIf (Modulo.Indice = Modulo.ListaCheques.Count) Then
-            Modulo.Indice = 0
-        Else
-            SetDatosAControles()
-            ActualizaTotal()
-        End If
-    End Sub
-    Private Sub ActualizaTotal()
-        Dim sum As Single = 0
-        sum = Modulo.ListaCheques.Sum(Function(item) item.Monto)
-        TxtTotal.Text = sum.ToString("#,#.00#;(#,#.00#)")
-    End Sub
-
-    Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
-        Dim len As Int32 = Modulo.ListaCheques.Count
-        DigiAvanzada(999)
-        Modulo.Indice = len
-        SetDatosAControles()
-    End Sub
-
-    Private Sub BtnRestart_Click(sender As Object, e As EventArgs) Handles BtnRestart.Click
-        Dim result As Integer = MessageBox.Show("¿Está seguro de reliazar esta acción? Perderá toda la información.", "Reinicar Proceso", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1)
-        If result = DialogResult.Yes Then
-            Modulo.ListaCheques.Clear()
-            Modulo.DocsMin = 0
-            ReiniciaControlesDetalle()
-            DigiAvanzada(999)
-            MostrarPrimerChequeEnLista()
-        End If
-    End Sub
-
-    Private Sub BtnExpulsar_Click(sender As Object, e As EventArgs) Handles BtnExpulsar.Click
-        BtnExpulsar.Enabled = False
-        BUICEjectDocument()
-        BtnExpulsar.Enabled = True
-    End Sub
-
-    Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
-        If (ActualizaCheque()) Then
-            Dim Db As DataAccesss = New DataAccesss()
-            If (Db.Process(ListaCheques.ConvertToDataTable())) Then
-                MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
-                Application.Exit()
+                CX30 = False
+                TS240 = False
+                Franqueo = 0
+                Inicializado = True
+                ScannerType = GetScannerType()
+                BUICGetScannerSerialNumber(SN, ND, NT)
+                BUICGetScannerInfo(aa, bb, dd, ee, ff, cc)
+                ee = ee.Substring(0, ee.IndexOf(Chr(0)))
+                SN = SN.Substring(0, SN.IndexOf(Chr(0)))
+                Me.Text = "DCC - AMM Demo >>>" + ee.Trim() + " (" + SN + ")"
+                Modulo.ListaCheques = New List(Of Cheque)
+            Else
+                Reintento = MessageBox.Show("No se encontró digitalizador !, Desea reintentar ?", "Inicialización", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             End If
+        Loop While (Res <> 1 And Reintento = MsgBoxResult.Yes)
+        If (Not Inicializado) Then
+            Reintento = MessageBox.Show("No podrá digitalizar documentos !", "Inicialización", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
         End If
     End Sub
+
     Private Function IsValidMonto() As Boolean
         If (TxtMonto.Text = 0) Then
             MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
@@ -876,11 +798,155 @@ Public Class Recuento
             Return False
         End If
         Return True
-        End Function
+    End Function
+
+    Private Sub MostrarPrimerChequeEnLista()
+        If (Modulo.ListaCheques.Count > 0) Then
+            Dim fCheque As Cheque = Modulo.ListaCheques.First()
+            DesbloqueaDetalle()
+            SetDatosAControles()
+        End If
+    End Sub
+
+    'Private _lista As List(Of Cheque)
+    'Private _Modulo.Indice As Int16
+    'Public Property Modulo.ListaCheques As List(Of Cheque)
+    '    Get
+    '        Return _lista
+    '    End Get
+    '    Set(value As List(Of Cheque))
+    '        _lista = value
+    '    End Set
+    'End Property
+    'Public Property Modulo.Indice As Short
+    '    Get
+    '        Return Modulo.Indice
+    '    End Get
+    '    Set(value As Short)
+    '        _Modulo.Indice = value
+    '    End Set
+    'End Property
+    Private Sub Recuento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        SetTootlTips()
+        ReiniciaControlesDetalle()
+        BloqueaDetalle()
+        Inicializador()
+        DigiAvanzada(999)
+        MostrarPrimerChequeEnLista()
+    End Sub
+
+    Private Sub ReiniciaControlesDetalle()
+        TxtMonto.Text = 0
+        TxtTotal.Text = "0.00"
+        DtFecha.Value = Date.Now
+        FrontPictureBox.Image = Nothing
+        BackPictureBox.Image = Nothing
+        LblChcSerial.Text = Nothing
+        LblChcCount.Text = "0"
+    End Sub
+
+    Private Sub SetDatosAControles()
+        If (Modulo.Indice < Modulo.ListaCheques.Count) Then
+            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
+            Dim posicion As String
+            posicion = If(Modulo.Indice = 0, "1", (Modulo.Indice + 1).ToString())
+            LblChcCount.Text = posicion & "/" & Convert.ToString(Modulo.ListaCheques.Count)
+            LblChcSerial.Text = objCheque.Micr
+            FrontPictureBox.Image = objCheque.ImagenABitmap
+            BackPictureBox.Image = objCheque.ImagenRBitmap
+            TxtMonto.Text = objCheque.Monto.ToString("#,#.00#;(#,#.00#)")
+            DtFecha.Value = objCheque.Fecha
+            If (Modulo.ListaCheques.Count = 1) Then
+                BtnNext.Enabled = False
+                BtnBack.Enabled = False
+                BtnFirst.Enabled = False
+                BtnLast.Enabled = False
+            Else
+                BtnNext.Enabled = True
+                BtnBack.Enabled = True
+                BtnFirst.Enabled = True
+                BtnLast.Enabled = True
+            End If
+            If (Modulo.Indice = 0) Then
+                BtnBack.Enabled = False
+            Else
+                BtnBack.Enabled = True
+            End If
+        Else
+            Modulo.Indice -= 1
+            SetDatosAControles()
+        End If
+        If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
+            BtnNext.Enabled = False
+            If ((Not BtnBack.Enabled) And (Modulo.ListaCheques.Count > 1)) Then
+                BtnBack.Enabled = True
+            End If
+        End If
+        TxtMonto.Select()
+    End Sub
+
+    Private Sub SetTootlTips()
+        ToolTip1.SetToolTip(BtnFirst, "Ir al primer cheque")
+        ToolTip2.SetToolTip(BtnNext, "Ir al siguiente cheque")
+        ToolTip3.SetToolTip(BtnBack, "Ir al cheque anterior")
+        ToolTip4.SetToolTip(BtnLast, "Ir al último cheque")
+        ToolTip5.SetToolTip(BtnGuardar, "Agregar(+)")
+        ToolTip6.SetToolTip(BtnEliminar, "Eliminar cheque")
+        ToolTip7.SetToolTip(BtnProcesar, "Procesar cheques cargados")
+        ToolTip8.SetToolTip(BtnRestart, "Reiniciar proceso")
+        ToolTip9.SetToolTip(BtnExpulsar, "Expulsar")
+    End Sub
+
+    Private Function SiguienteImagen(ByVal tipo As Integer) As Integer
+        Dim ImageDir() As String
+        Dim archivo As String
+        Dim numero As Integer
+
+        numero = 1
+        archivo = ""
+        Select Case tipo
+            Case 1
+                ImageDir = Directory.GetFiles(PathImagenes, "*.Tif")
+                If (ImageDir.Length > 0) Then
+                    archivo = Path.GetFileName(ImageDir(ImageDir.Length - 1))
+                    numero = Convert.ToInt16(archivo.Substring(1, 5)) + 1
+                End If
+            Case 2
+                ImageDir = Directory.GetFiles(PathImagenes, "*.Jpg")
+                If (ImageDir.Length > 0) Then
+                    archivo = Path.GetFileName(ImageDir(ImageDir.Length - 1))
+                    numero = Convert.ToInt16(archivo.Substring(1, 5)) + 1
+                End If
+            Case 3
+                ImageDir = Directory.GetFiles(PathImagenes, "*.Bmp")
+                If (ImageDir.Length > 0) Then
+                    archivo = Path.GetFileName(ImageDir(ImageDir.Length - 1))
+                    numero = Convert.ToInt16(archivo.Substring(1, 5)) + 1
+                End If
+        End Select
+        Return (numero)
+    End Function
+
+    Private Sub TxtMonto_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles TxtMonto.KeyPress
+        Dim keyvalue As Int32 = Asc(e.KeyChar)
+        If ((keyvalue = Modulo.BACKSPACE) Or (((keyvalue >= Modulo.ZERO) And (keyvalue <= Modulo.NINE)) Or (keyvalue = Modulo.DECIMAL_POINT) Or (keyvalue = Modulo.THOUNSAND_POINT))) Then
+            e.Handled = False
+        Else
+            e.Handled = True
+        End If
+        If (keyvalue = Modulo.ENTER) Then
+            If (IsValidMonto()) Then
+                DtFecha.Select()
+            End If
+        End If
+    End Sub
 
     Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
         If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
             TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
         End If
     End Sub
+
+#End Region
+
 End Class
