@@ -1,19 +1,24 @@
 ﻿Imports Recuento_Cheque__CD_
 
-Public Class Micr
+Public Class Buscar
 
-    #Region "Methods"
+#Region "Methods"
 
-    Private Sub BtnCMC_Click(sender As Object, e As EventArgs) Handles BtnCMC.Click
+    Private Sub BtnCMC_Click(sender As Object, e As EventArgs) Handles BtnBuscar.Click
         If (IsValidMICR()) Then
-            Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
-            objCheque.NroCheque = TxtNCheque.Text
-            objCheque.CodBanco = TxtCodBco.Text
-            objCheque.CodPlza = TxtCodPlza.Text
-            objCheque.CtaCorriente = TxtCtaCorriente.Text
-            objCheque.SetMICR()
-            Me.Close()
-            Recuento.LblChcSerial.Text = objCheque.Micr
+            Dim objCheque As Cheque = Modulo.ListaCheques.Where(Function(x) x.NroCheque = TxtNCheque.Text AndAlso x.CodBanco = TxtCodBco.Text AndAlso x.CodPlza = TxtCodPlza.Text AndAlso x.CtaCorriente = TxtCtaCorriente.Text).FirstOrDefault()
+            Dim Index = Modulo.ListaCheques.FindIndex(Function(x) x.NroCheque = TxtNCheque.Text AndAlso x.CodBanco = TxtCodBco.Text AndAlso x.CodPlza = TxtCodPlza.Text AndAlso x.CtaCorriente = TxtCtaCorriente.Text)
+            If (objCheque IsNot Nothing) Then
+                Recuento.LblChcSerial.Text = objCheque.Micr
+                Recuento.TxtMonto.Text = objCheque.Monto
+                Recuento.DtFecha.Value = objCheque.Fecha
+                Recuento.FrontPictureBox.Image = objCheque.ImagenABitmap
+                Recuento.BackPictureBox.Image = objCheque.ImagenRBitmap
+                Recuento.LblChcCount.Text = (Index + 1).ToString() & "/" & Modulo.ListaCheques.Count.ToString()
+                Me.Close()
+            Else
+                MessageBox.Show("Cheque no existente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            End If
         End If
     End Sub
 
@@ -93,7 +98,7 @@ Public Class Micr
 
     Private Sub TxtCtaCorriente_KeyUp(sender As Object, e As KeyEventArgs) Handles TxtCtaCorriente.KeyUp
         If (TxtCtaCorriente.TextLength = TxtCtaCorriente.MaxLength) Then
-            BtnCMC.Select()
+            BtnBuscar.Select()
         End If
     End Sub
 

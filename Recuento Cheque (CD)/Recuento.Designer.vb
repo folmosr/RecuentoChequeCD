@@ -31,6 +31,7 @@ Partial Class Recuento
         Me.BackPictureBox = New System.Windows.Forms.PictureBox()
         Me.PanelContainer = New System.Windows.Forms.Panel()
         Me.ActionPanel = New System.Windows.Forms.Panel()
+        Me.BtnBuscar = New System.Windows.Forms.Button()
         Me.BtnExpulsar = New System.Windows.Forms.Button()
         Me.BtnRestart = New System.Windows.Forms.Button()
         Me.BtnProcesar = New System.Windows.Forms.Button()
@@ -154,6 +155,7 @@ Partial Class Recuento
         '
         Me.ActionPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
         Me.ActionPanel.BackColor = System.Drawing.SystemColors.ButtonShadow
+        Me.ActionPanel.Controls.Add(Me.BtnBuscar)
         Me.ActionPanel.Controls.Add(Me.BtnExpulsar)
         Me.ActionPanel.Controls.Add(Me.BtnRestart)
         Me.ActionPanel.Controls.Add(Me.BtnProcesar)
@@ -165,10 +167,19 @@ Partial Class Recuento
         Me.ActionPanel.Size = New System.Drawing.Size(183, 75)
         Me.ActionPanel.TabIndex = 8
         '
+        'BtnBuscar
+        '
+        Me.BtnBuscar.Image = CType(resources.GetObject("BtnBuscar.Image"), System.Drawing.Image)
+        Me.BtnBuscar.Location = New System.Drawing.Point(28, 3)
+        Me.BtnBuscar.Name = "BtnBuscar"
+        Me.BtnBuscar.Size = New System.Drawing.Size(42, 33)
+        Me.BtnBuscar.TabIndex = 14
+        Me.BtnBuscar.UseVisualStyleBackColor = True
+        '
         'BtnExpulsar
         '
         Me.BtnExpulsar.Image = CType(resources.GetObject("BtnExpulsar.Image"), System.Drawing.Image)
-        Me.BtnExpulsar.Location = New System.Drawing.Point(87, 39)
+        Me.BtnExpulsar.Location = New System.Drawing.Point(108, 39)
         Me.BtnExpulsar.Name = "BtnExpulsar"
         Me.BtnExpulsar.Size = New System.Drawing.Size(42, 33)
         Me.BtnExpulsar.TabIndex = 13
@@ -177,7 +188,7 @@ Partial Class Recuento
         'BtnRestart
         '
         Me.BtnRestart.Image = CType(resources.GetObject("BtnRestart.Image"), System.Drawing.Image)
-        Me.BtnRestart.Location = New System.Drawing.Point(47, 39)
+        Me.BtnRestart.Location = New System.Drawing.Point(68, 39)
         Me.BtnRestart.Name = "BtnRestart"
         Me.BtnRestart.Size = New System.Drawing.Size(42, 33)
         Me.BtnRestart.TabIndex = 12
@@ -186,7 +197,7 @@ Partial Class Recuento
         'BtnProcesar
         '
         Me.BtnProcesar.Image = CType(resources.GetObject("BtnProcesar.Image"), System.Drawing.Image)
-        Me.BtnProcesar.Location = New System.Drawing.Point(28, 3)
+        Me.BtnProcesar.Location = New System.Drawing.Point(28, 39)
         Me.BtnProcesar.Name = "BtnProcesar"
         Me.BtnProcesar.Size = New System.Drawing.Size(42, 33)
         Me.BtnProcesar.TabIndex = 9
@@ -380,4 +391,5 @@ Partial Class Recuento
     Friend WithEvents BtnEliminar As Button
     Friend WithEvents BtnExpulsar As Button
     Friend WithEvents ToolTip9 As ToolTip
+    Friend WithEvents BtnBuscar As Button
 End Class

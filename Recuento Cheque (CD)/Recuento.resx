@@ -133,6 +133,19 @@
     <value>True</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="BtnBuscar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
+        EwAACxMBAJqcGAAAAatJREFUSEvllM8rw2EcxzdrJQdy8rt2c3UgSi5EapflxMHBBQfnRQ3FnyEnLSUH
+        RcnNSsoBxWpFzuSgJG0jP16f5/msZm3fZ2tzkHe9e57P5/N+v7/78Xwf379CEE75/f44PIdJeEQvBrtE
+        UA2GCLuDXyWYhWvoAlZeGSKY3zToBW7Qm4GTcIU6pTPhLr2KHtKN6VXNCeo22zYYhP2wDkaZf4qO/Sos
+        Dxj2NPyKssF2DWj50zrboa6Hi1pn2LeLyIUWxB9iYj9sWz8wxuxYQ+PUAdYb1UeNwoEJNT9oXQwSmtDQ
+        HtZ19RzYsTcWVHyidSmMonlm7YXT6rk0EwdmVXyhdTmYV8+p1p6Qsy/iLPsm2/IG2i31bGrLE0GEj2Jg
+        v2xbngihzag+YltuxMQA5VuM2FZRNKI5U22SWt4NJzoR36op9xB5iZrN1EKCwszM8YRp6j4zcaAwPJ/v
+        8BrKJ37SnlBO0ri1e6NYeIr+Eut9QV8o99Q285BxO1AqvNWOzUU2AOWym4NhmP+TeaLDEV4dCMtdbLUP
+        FxB4+GvhCrn796H8YTUP/6vw+b4BBm2AmTpkzGYAAAAASUVORK5CYII=
+</value>
+  </data>
   <data name="BtnExpulsar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAM5JREFUSEvt
