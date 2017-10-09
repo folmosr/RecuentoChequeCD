@@ -1,4 +1,6 @@
-﻿Imports System.IO
+﻿Imports System.Configuration
+Imports System.IO
+Imports System.Security.Principal
 Imports System.Text
 Imports System.Text.RegularExpressions
 
@@ -51,6 +53,7 @@ Public Class Recuento
         BtnProcesar.Enabled = False
         BtnRestart.Enabled = False
         BtnExpulsar.Enabled = False
+        BtnBuscar.Enabled = False
     End Sub
 
     Private Sub BtnBack_Click(sender As Object, e As EventArgs) Handles BtnBack.Click
@@ -66,6 +69,10 @@ Public Class Recuento
                 BtnNext.Enabled = True
             End If
         End If
+    End Sub
+
+    Private Sub BtnBuscar_Click(sender As Object, e As EventArgs) Handles BtnBuscar.Click
+        Buscar.Show()
     End Sub
 
     'Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
@@ -117,6 +124,7 @@ Public Class Recuento
         DigiAvanzada(999)
         Modulo.Indice = len
         SetDatosAControles()
+        SetMaximunToProgressBar()
     End Sub
 
     Private Sub BtnLast_Click(sender As Object, e As EventArgs) Handles BtnLast.Click
@@ -134,7 +142,9 @@ Public Class Recuento
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
         If (ActualizaCheque()) Then
             Dim Db As DataAccesss = New DataAccesss()
+            ProgressBar1.Increment(1)
             If (Db.Process(ListaCheques.ConvertToDataTable())) Then
+                UploadFile()
                 MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
                 Application.Exit()
             End If
@@ -149,6 +159,7 @@ Public Class Recuento
             ReiniciaControlesDetalle()
             DigiAvanzada(999)
             MostrarPrimerChequeEnLista()
+            SetMaximunToProgressBar()
         End If
     End Sub
 
@@ -165,6 +176,7 @@ Public Class Recuento
         BtnProcesar.Enabled = True
         BtnRestart.Enabled = True
         BtnExpulsar.Enabled = True
+        BtnBuscar.Enabled = True
     End Sub
 
     Private Sub DigiAvanzada(ByVal DocNum As Integer)
@@ -462,7 +474,7 @@ Public Class Recuento
                     ' Dim FileImage As FileStream = New FileStream(ImgA, FileMode.Open)
                     DispImagenA = New Bitmap(Image.FromStream(FileA))
                     DispImagenR = New Bitmap(Image.FromStream(FileR))
-                    Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR))
+                    Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR, 255336))
                     FrontPictureBox.Image = DispImagenA
                     BackPictureBox.Image = DispImagenR
                     'LblChcSerial.Text = MICR
@@ -503,14 +515,6 @@ Public Class Recuento
         IndicesTif.Close()
         IndicesJpg.Close()
         IndicesBmp.Close()
-    End Sub
-
-    Private Sub Reintentar(indicesTif As StreamWriter, indicesJpg As StreamWriter, indicesBmp As StreamWriter)
-        indicesTif.Close()
-        indicesJpg.Close()
-        indicesBmp.Close()
-        DigiAvanzada(999)
-        MostrarPrimerChequeEnLista()
     End Sub
 
     Private Sub DtFecha_Keypress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles DtFecha.KeyPress
@@ -745,10 +749,9 @@ Public Class Recuento
         Dim Inicializado As Boolean
         Dim Reintento As MsgBoxResult
         Modulo.Indice = 0
-        PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
-        PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
+        Modulo.PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
+        Modulo.PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
         If (Not Directory.Exists(PathImagenes)) Then Directory.CreateDirectory(PathImagenes)
-
         'PathImagenesSucursal = Path.GetDirectoryName(PathInicio) + "\" + "ImagenesS" + "\"
         ' If (Not Directory.Exists(PathImagenesSucursal)) Then Directory.CreateDirectory(PathImagenesSucursal)
         Me.Show()
@@ -800,12 +803,35 @@ Public Class Recuento
         Return True
     End Function
 
+    Private Sub LimpiaContenedorDeImagenes()
+        For Each deleteFile In Directory.GetFiles(Modulo.PathImagenes, "*.*", SearchOption.TopDirectoryOnly)
+            File.Delete(deleteFile)
+        Next
+    End Sub
+
     Private Sub MostrarPrimerChequeEnLista()
         If (Modulo.ListaCheques.Count > 0) Then
             Dim fCheque As Cheque = Modulo.ListaCheques.First()
             DesbloqueaDetalle()
             SetDatosAControles()
         End If
+    End Sub
+
+    Private Sub Open_Remote_Connection(ByVal strComputer As String, ByVal strUsername As String, ByVal strPassword As String)
+        '//====================================================================================
+        '//using NET USE to open a connection to the remote computer
+        '//with the specified credentials. if we dont do this first, File.Copy will fail
+        '//====================================================================================
+        Dim ProcessStartInfo As New System.Diagnostics.ProcessStartInfo
+        ProcessStartInfo.FileName = "net"
+        ProcessStartInfo.Arguments = "use \\" & strComputer & "\c$ /USER:" & strUsername & " " & strPassword
+        ProcessStartInfo.WindowStyle = ProcessWindowStyle.Hidden
+        System.Diagnostics.Process.Start(ProcessStartInfo)
+
+        '//============================================================================
+        '//wait 2 seconds to let the above command complete or the copy will still fail
+        '//============================================================================
+        System.Threading.Thread.Sleep(2000)
     End Sub
 
     'Private _lista As List(Of Cheque)
@@ -831,8 +857,10 @@ Public Class Recuento
         ReiniciaControlesDetalle()
         BloqueaDetalle()
         Inicializador()
+        LimpiaContenedorDeImagenes()
         DigiAvanzada(999)
         MostrarPrimerChequeEnLista()
+        SetMaximunToProgressBar()
     End Sub
 
     Private Sub ReiniciaControlesDetalle()
@@ -843,6 +871,14 @@ Public Class Recuento
         BackPictureBox.Image = Nothing
         LblChcSerial.Text = Nothing
         LblChcCount.Text = "0"
+    End Sub
+
+    Private Sub Reintentar(indicesTif As StreamWriter, indicesJpg As StreamWriter, indicesBmp As StreamWriter)
+        indicesTif.Close()
+        indicesJpg.Close()
+        indicesBmp.Close()
+        DigiAvanzada(999)
+        MostrarPrimerChequeEnLista()
     End Sub
 
     Private Sub SetDatosAControles()
@@ -885,6 +921,9 @@ Public Class Recuento
         TxtMonto.Select()
     End Sub
 
+    Private Sub SetMaximunToProgressBar()
+        ProgressBar1.Maximum = ListaCheques.Count
+    End Sub
     Private Sub SetTootlTips()
         ToolTip1.SetToolTip(BtnFirst, "Ir al primer cheque")
         ToolTip2.SetToolTip(BtnNext, "Ir al siguiente cheque")
@@ -947,9 +986,24 @@ Public Class Recuento
         End If
     End Sub
 
-    Private Sub BtnBuscar_Click(sender As Object, e As EventArgs) Handles BtnBuscar.Click
-        Buscar.Show()
+    Private Sub UploadFile()
+        Try
+            Dim file_name_front = ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local\" & ConfigurationManager.AppSettings.Item("backAKA")
+            Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
+            If Not IO.Directory.Exists(ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local\") Then
+                IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local")
+            End If
+            For Each item As Cheque In ListaCheques
+                item.ImagenABitmap.Save(file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
+                item.ImagenABitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
+                ProgressBar1.Increment(1)
+            Next
+        Catch e As Exception
+            MessageBox.Show("Imposible cargar las imágenes digitalizadas" & vbNewLine & e.Message, "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+        End Try
     End Sub
+
 #End Region
 
 End Class

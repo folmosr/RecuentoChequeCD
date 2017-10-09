@@ -57,6 +57,7 @@ Partial Class Recuento
         Me.ToolTip7 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip8 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip9 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.PpalLayoutPanel.SuspendLayout()
         Me.InnerLayoutPanel.SuspendLayout()
         CType(Me.FrontPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -148,13 +149,14 @@ Partial Class Recuento
         Me.PanelContainer.Controls.Add(Me.LblMonto)
         Me.PanelContainer.Location = New System.Drawing.Point(598, 42)
         Me.PanelContainer.Name = "PanelContainer"
-        Me.PanelContainer.Size = New System.Drawing.Size(183, 360)
+        Me.PanelContainer.Size = New System.Drawing.Size(183, 393)
         Me.PanelContainer.TabIndex = 3
         '
         'ActionPanel
         '
         Me.ActionPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
         Me.ActionPanel.BackColor = System.Drawing.SystemColors.ButtonShadow
+        Me.ActionPanel.Controls.Add(Me.ProgressBar1)
         Me.ActionPanel.Controls.Add(Me.BtnBuscar)
         Me.ActionPanel.Controls.Add(Me.BtnExpulsar)
         Me.ActionPanel.Controls.Add(Me.BtnRestart)
@@ -162,15 +164,15 @@ Partial Class Recuento
         Me.ActionPanel.Controls.Add(Me.BtnGuardar)
         Me.ActionPanel.Controls.Add(Me.BtnEliminar)
         Me.ActionPanel.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.ActionPanel.Location = New System.Drawing.Point(0, 285)
+        Me.ActionPanel.Location = New System.Drawing.Point(0, 288)
         Me.ActionPanel.Name = "ActionPanel"
-        Me.ActionPanel.Size = New System.Drawing.Size(183, 75)
+        Me.ActionPanel.Size = New System.Drawing.Size(183, 105)
         Me.ActionPanel.TabIndex = 8
         '
         'BtnBuscar
         '
         Me.BtnBuscar.Image = CType(resources.GetObject("BtnBuscar.Image"), System.Drawing.Image)
-        Me.BtnBuscar.Location = New System.Drawing.Point(28, 3)
+        Me.BtnBuscar.Location = New System.Drawing.Point(28, 10)
         Me.BtnBuscar.Name = "BtnBuscar"
         Me.BtnBuscar.Size = New System.Drawing.Size(42, 33)
         Me.BtnBuscar.TabIndex = 14
@@ -179,7 +181,7 @@ Partial Class Recuento
         'BtnExpulsar
         '
         Me.BtnExpulsar.Image = CType(resources.GetObject("BtnExpulsar.Image"), System.Drawing.Image)
-        Me.BtnExpulsar.Location = New System.Drawing.Point(108, 39)
+        Me.BtnExpulsar.Location = New System.Drawing.Point(108, 46)
         Me.BtnExpulsar.Name = "BtnExpulsar"
         Me.BtnExpulsar.Size = New System.Drawing.Size(42, 33)
         Me.BtnExpulsar.TabIndex = 13
@@ -188,7 +190,7 @@ Partial Class Recuento
         'BtnRestart
         '
         Me.BtnRestart.Image = CType(resources.GetObject("BtnRestart.Image"), System.Drawing.Image)
-        Me.BtnRestart.Location = New System.Drawing.Point(68, 39)
+        Me.BtnRestart.Location = New System.Drawing.Point(68, 46)
         Me.BtnRestart.Name = "BtnRestart"
         Me.BtnRestart.Size = New System.Drawing.Size(42, 33)
         Me.BtnRestart.TabIndex = 12
@@ -197,7 +199,7 @@ Partial Class Recuento
         'BtnProcesar
         '
         Me.BtnProcesar.Image = CType(resources.GetObject("BtnProcesar.Image"), System.Drawing.Image)
-        Me.BtnProcesar.Location = New System.Drawing.Point(28, 39)
+        Me.BtnProcesar.Location = New System.Drawing.Point(28, 46)
         Me.BtnProcesar.Name = "BtnProcesar"
         Me.BtnProcesar.Size = New System.Drawing.Size(42, 33)
         Me.BtnProcesar.TabIndex = 9
@@ -206,7 +208,7 @@ Partial Class Recuento
         'BtnGuardar
         '
         Me.BtnGuardar.Image = CType(resources.GetObject("BtnGuardar.Image"), System.Drawing.Image)
-        Me.BtnGuardar.Location = New System.Drawing.Point(68, 3)
+        Me.BtnGuardar.Location = New System.Drawing.Point(68, 10)
         Me.BtnGuardar.Name = "BtnGuardar"
         Me.BtnGuardar.Size = New System.Drawing.Size(42, 33)
         Me.BtnGuardar.TabIndex = 10
@@ -215,7 +217,7 @@ Partial Class Recuento
         'BtnEliminar
         '
         Me.BtnEliminar.Image = CType(resources.GetObject("BtnEliminar.Image"), System.Drawing.Image)
-        Me.BtnEliminar.Location = New System.Drawing.Point(108, 3)
+        Me.BtnEliminar.Location = New System.Drawing.Point(108, 10)
         Me.BtnEliminar.Name = "BtnEliminar"
         Me.BtnEliminar.Size = New System.Drawing.Size(42, 33)
         Me.BtnEliminar.TabIndex = 11
@@ -336,6 +338,13 @@ Partial Class Recuento
         Me.LblChcCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.LblChcCount.UseMnemonic = False
         '
+        'ProgressBar1
+        '
+        Me.ProgressBar1.Location = New System.Drawing.Point(28, 86)
+        Me.ProgressBar1.Name = "ProgressBar1"
+        Me.ProgressBar1.Size = New System.Drawing.Size(122, 14)
+        Me.ProgressBar1.TabIndex = 15
+        '
         'Recuento
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -392,4 +401,5 @@ Partial Class Recuento
     Friend WithEvents BtnExpulsar As Button
     Friend WithEvents ToolTip9 As ToolTip
     Friend WithEvents BtnBuscar As Button
+    Friend WithEvents ProgressBar1 As ProgressBar
 End Class

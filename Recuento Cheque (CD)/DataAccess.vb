@@ -12,12 +12,13 @@ Public Class DataAccesss
 
             Using bulkCopy As SqlBulkCopy =
               New SqlBulkCopy(connection)
-                bulkCopy.ColumnMappings.Add(3, 1)
-                bulkCopy.ColumnMappings.Add(4, 2)
-                bulkCopy.ColumnMappings.Add(7, 3)
-                bulkCopy.ColumnMappings.Add(8, 4)
-                bulkCopy.ColumnMappings.Add(9, 5)
-                bulkCopy.ColumnMappings.Add(10, 6)
+                bulkCopy.ColumnMappings.Add("Monto", "Monto")
+                bulkCopy.ColumnMappings.Add("Fecha", "Fecha")
+                bulkCopy.ColumnMappings.Add("NroCheque", "NroCheque")
+                bulkCopy.ColumnMappings.Add("CodBanco", "CodBanco")
+                bulkCopy.ColumnMappings.Add("CodPlza", "CodPlza")
+                bulkCopy.ColumnMappings.Add("CtaCorriente", "CtaCorriente")
+                bulkCopy.ColumnMappings.Add("Id_Recuento_Contenedor", "Id_Recuento_Contenedor")
                 bulkCopy.DestinationTableName = "dbo.Detalle_Documentos"
                 Try
                     ' Write from the source to the destination.
