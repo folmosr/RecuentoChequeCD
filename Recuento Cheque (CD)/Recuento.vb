@@ -140,9 +140,9 @@ Public Class Recuento
     End Sub
 
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
+        ProgressBar1.Increment(1)
         If (ActualizaCheque()) Then
             Dim Db As DataAccesss = New DataAccesss()
-            ProgressBar1.Increment(1)
             If (Db.Process(ListaCheques.ConvertToDataTable())) Then
                 UploadFile()
                 MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
