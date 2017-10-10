@@ -14,12 +14,13 @@
     Private _monto As Single
     Private _nroCheque As String
     Private _id_recuento_contenedor As Int32
+    Private _tipo_recuento As String
 
 #End Region 'Fields
 
 #Region "Constructors"
 
-    Public Sub New(ByVal micr As String, ByVal imagenA As Bitmap, ByVal imagenR As Bitmap, ByVal idRecuento As Int32)
+    Public Sub New(ByVal micr As String, ByVal imagenA As Bitmap, ByVal imagenR As Bitmap, ByVal idRecuento As Int32, ByVal tipo As String)
         Me.Micr = micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty)
         If (Me.Micr.Length = 29) Then
             Me.NroCheque = Me.Micr.Substring(0, 7)
@@ -33,7 +34,8 @@
         Me.ImagenABitmap = imagenA
         Me.ImagenRBitmap = imagenR
         Me.Fecha = Date.Now
-        Me.Id_recuento_contenedor = idRecuento
+        Me.Id_Recuento_Contenedor = idRecuento
+        Me.Tipo_Recuento = tipo
         Me.Monto = 0
     End Sub
 
@@ -140,12 +142,21 @@
         End Set
     End Property
 
-    Public Property Id_recuento_contenedor As Int32
+    Public Property Id_Recuento_Contenedor As Int32
         Get
             Return _id_recuento_contenedor
         End Get
         Set(value As Int32)
             _id_recuento_contenedor = value
+        End Set
+    End Property
+
+    Public Property Tipo_Recuento As String
+        Get
+            Return _tipo_recuento
+        End Get
+        Set(value As String)
+            _tipo_recuento = value
         End Set
     End Property
 

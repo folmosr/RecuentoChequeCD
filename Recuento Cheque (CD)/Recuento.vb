@@ -1,12 +1,17 @@
-﻿Imports System.Configuration
+﻿
+Imports System.Collections.Specialized
+Imports System.Configuration
+Imports System.Deployment.Application
 Imports System.IO
 Imports System.Security.Principal
 Imports System.Text
 Imports System.Text.RegularExpressions
+Imports System.Web
 
 Imports Recuento_Cheque__CD_
 
 Public Class Recuento
+
 
 #Region "Private Methods"
 
@@ -474,7 +479,7 @@ Public Class Recuento
                     ' Dim FileImage As FileStream = New FileStream(ImgA, FileMode.Open)
                     DispImagenA = New Bitmap(Image.FromStream(FileA))
                     DispImagenR = New Bitmap(Image.FromStream(FileR))
-                    Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR, 255336))
+                    Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR, Convert.ToInt32(Modulo.Id_Recuento_Contenedor), Modulo.Tipo_Recuento))
                     FrontPictureBox.Image = DispImagenA
                     BackPictureBox.Image = DispImagenR
                     'LblChcSerial.Text = MICR
@@ -745,6 +750,31 @@ Public Class Recuento
         Return (errmsg)
     End Function
 
+    Private Sub GetQueryStringParameters()
+        Dim NameValueTable As New NameValueCollection()
+        Dim values() As String
+        If (ApplicationDeployment.IsNetworkDeployed) Then
+            Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
+            If (qString IsNot Nothing) Then
+                NameValueTable = HttpUtility.ParseQueryString(qString)
+                For Each key In NameValueTable.Keys
+                    values = NameValueTable.GetValues(key)
+                    For Each value As String In values
+                        If (key = "id_recuento_contenedor") Then
+                            Modulo.Id_Recuento_Contenedor = value
+                        ElseIf (key = "cliente") Then
+                            Modulo.Cliente = value
+                        ElseIf (key = "local") Then
+                            Modulo.Sucursal = value
+                        Else
+                            Modulo.Tipo_Recuento = value
+                        End If
+                    Next value
+                Next key
+            End If
+        End If
+    End Sub
+
     Private Sub Inicializador()
         Dim Inicializado As Boolean
         Dim Reintento As MsgBoxResult
@@ -853,6 +883,7 @@ Public Class Recuento
     '    End Set
     'End Property
     Private Sub Recuento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        GetQueryStringParameters()
         SetTootlTips()
         ReiniciaControlesDetalle()
         BloqueaDetalle()
@@ -988,11 +1019,11 @@ Public Class Recuento
 
     Private Sub UploadFile()
         Try
-            Dim file_name_front = ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local\" & ConfigurationManager.AppSettings.Item("frontAKA")
-            Dim file_name_back = ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local\" & ConfigurationManager.AppSettings.Item("backAKA")
+            Dim file_name_front = ConfigurationManager.AppSettings.Item("machine") & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = ConfigurationManager.AppSettings.Item("machine") & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
             Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
-            If Not IO.Directory.Exists(ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local\") Then
-                IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "Cliente\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\Local")
+            If Not IO.Directory.Exists(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
+                IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
                 item.ImagenABitmap.Save(file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)

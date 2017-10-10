@@ -19,6 +19,7 @@ Public Class DataAccesss
                 bulkCopy.ColumnMappings.Add("CodPlza", "CodPlza")
                 bulkCopy.ColumnMappings.Add("CtaCorriente", "CtaCorriente")
                 bulkCopy.ColumnMappings.Add("Id_Recuento_Contenedor", "Id_Recuento_Contenedor")
+                bulkCopy.ColumnMappings.Add("Tipo_Recuento", "Tipo_Recuento")
                 bulkCopy.DestinationTableName = "dbo.Detalle_Documentos"
                 Try
                     ' Write from the source to the destination.
