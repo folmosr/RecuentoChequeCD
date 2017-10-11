@@ -824,7 +824,7 @@ Public Class Recuento
             TxtMonto.Select()
             Return False
         End If
-        Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
+        Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d+(\.\d{3})*(\,\d+)?$")
         If (Not pattern.IsMatch(TxtMonto.Text)) Then
             MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             TxtMonto.Select()

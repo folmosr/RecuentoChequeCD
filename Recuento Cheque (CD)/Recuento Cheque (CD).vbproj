@@ -24,13 +24,15 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://localhost/sgm2v3/TS240App/</InstallUrl>
+    <InstallUrl>http://127.0.0.1/sigm2v3/TS240App/</InstallUrl>
+    <ProductName>Recuento Cheque %28CD%29</ProductName>
+    <PublisherName>LGSCHILE</PublisherName>
     <MinimumRequiredVersion>1.0.0.1</MinimumRequiredVersion>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <TrustUrlParameters>true</TrustUrlParameters>
-    <ApplicationRevision>3</ApplicationRevision>
-    <ApplicationVersion>1.0.0.3</ApplicationVersion>
+    <ApplicationRevision>7</ApplicationRevision>
+    <ApplicationVersion>1.0.0.7</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -82,6 +84,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>8C5D183C6DDCD42AE931C50A0FF86969ED958D77</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
