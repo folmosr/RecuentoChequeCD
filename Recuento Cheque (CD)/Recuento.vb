@@ -775,7 +775,7 @@ Public Class Recuento
         End If
     End Sub
 
-    Private Sub Inicializador()
+    Private Function Inicializador() As Boolean
         Dim Inicializado As Boolean
         Dim Reintento As MsgBoxResult
         Modulo.Indice = 0
@@ -816,7 +816,8 @@ Public Class Recuento
         If (Not Inicializado) Then
             Reintento = MessageBox.Show("No podrá digitalizar documentos !", "Inicialización", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
         End If
-    End Sub
+        Return Inicializado
+    End Function
 
     Private Function IsValidMonto() As Boolean
         If (TxtMonto.Text = 0) Then
@@ -887,11 +888,12 @@ Public Class Recuento
         SetTootlTips()
         ReiniciaControlesDetalle()
         BloqueaDetalle()
-        Inicializador()
-        LimpiaContenedorDeImagenes()
-        DigiAvanzada(999)
-        MostrarPrimerChequeEnLista()
-        SetMaximunToProgressBar()
+        If (Inicializador()) Then
+            LimpiaContenedorDeImagenes()
+            DigiAvanzada(999)
+            MostrarPrimerChequeEnLista()
+            SetMaximunToProgressBar()
+        End If
     End Sub
 
     Private Sub ReiniciaControlesDetalle()
