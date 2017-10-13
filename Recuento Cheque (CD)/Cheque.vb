@@ -11,7 +11,7 @@
     Private _imagenR As String
     Private _imagenRBitmap As Bitmap
     Private _micr As String
-    Private _monto As Single
+    Private _monto As Long
     Private _nroCheque As String
     Private _id_recuento_contenedor As Int32
     Private _tipo_recuento As String
@@ -124,11 +124,11 @@
         End Set
     End Property
 
-    Public Property Monto() As Single
+    Public Property Monto() As Long
         Get
             Return _monto
         End Get
-        Set(value As Single)
+        Set(value As Long)
             _monto = value
         End Set
     End Property
