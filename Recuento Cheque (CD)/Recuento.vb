@@ -18,10 +18,10 @@ Public Class Recuento
     Private Function ActualizaCheque() As Boolean
         Dim currentDate As Date = DateTime.Now()
         Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
-        If ((Convert.ToSingle(TxtMonto.Text) > 0) And (res) And (IsValidMonto())) Then
+        If ((Convert.ToInt64(TxtMonto.Text.Replace(".", Nothing)) > 0) And (res) And (IsValidMonto())) Then
             Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             If (Not objCheque.Micr.IndexOf("?") > -1) Then
-                objCheque.Monto = Convert.ToSingle(TxtMonto.Text)
+                objCheque.Monto = Convert.ToInt64(TxtMonto.Text.Replace(".", Nothing))
                 objCheque.Fecha = DtFecha.Value
                 ActualizaTotal()
             Else
@@ -40,9 +40,9 @@ Public Class Recuento
     End Function
 
     Private Sub ActualizaTotal()
-        Dim sum As Single = 0
+        Dim sum As Long = 0
         sum = Modulo.ListaCheques.Sum(Function(item) item.Monto)
-        TxtTotal.Text = sum.ToString("#,#.00#;(#,#.00#)")
+        TxtTotal.Text = sum.ToString("N0")
     End Sub
 
     Private Sub BloqueaDetalle()
@@ -820,12 +820,12 @@ Public Class Recuento
     End Function
 
     Private Function IsValidMonto() As Boolean
-        If (TxtMonto.Text = 0) Then
+        If ((TxtMonto.Text = Nothing) Or (TxtMonto.Text = 0)) Then
             MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             TxtMonto.Select()
             Return False
         End If
-        Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d+(\.\d{3})*(\,\d+)?$")
+        Dim pattern As New Regex("^(?:0|[1-9][0-9]{0,2}(?:\.[0-9]{3})*)$") '(\,\d+)? 
         If (Not pattern.IsMatch(TxtMonto.Text)) Then
             MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             TxtMonto.Select()
@@ -898,7 +898,7 @@ Public Class Recuento
 
     Private Sub ReiniciaControlesDetalle()
         TxtMonto.Text = 0
-        TxtTotal.Text = "0.00"
+        TxtTotal.Text = "0"
         DtFecha.Value = Date.Now
         FrontPictureBox.Image = Nothing
         BackPictureBox.Image = Nothing
@@ -920,10 +920,10 @@ Public Class Recuento
             Dim posicion As String
             posicion = If(Modulo.Indice = 0, "1", (Modulo.Indice + 1).ToString())
             LblChcCount.Text = posicion & "/" & Convert.ToString(Modulo.ListaCheques.Count)
-            LblChcSerial.Text = objCheque.Micr
+            LblChcSerial.Text = (objCheque.NroCheque & objCheque.CodBanco & objCheque.CodPlza & objCheque.CtaCorriente)
             FrontPictureBox.Image = objCheque.ImagenABitmap
             BackPictureBox.Image = objCheque.ImagenRBitmap
-            TxtMonto.Text = objCheque.Monto.ToString("#,#.00#;(#,#.00#)")
+            TxtMonto.Text = objCheque.Monto.ToString("N0") '.00#
             DtFecha.Value = objCheque.Fecha
             If (Modulo.ListaCheques.Count = 1) Then
                 BtnNext.Enabled = False
@@ -1014,9 +1014,11 @@ Public Class Recuento
     End Sub
 
     Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
-        If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
-            TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
-        End If
+        ActualizaCheque()
+        ActualizaTotal()
+        'If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
+        '    TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
+        'End If
     End Sub
 
     Private Sub UploadFile()
