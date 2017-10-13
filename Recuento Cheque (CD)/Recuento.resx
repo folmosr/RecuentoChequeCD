@@ -180,11 +180,19 @@
   </data>
   <data name="BtnGuardar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAL9JREFUSEvt
-        lVENAjEQRCsBKUhACg5AAlKQgAQcgANwcswkdDMpW1LYLV+85H3cbjvzc7krv+IIl6AXuIIuevAOuwc7
-        7OHbEi04czBAPb95Wp/dkrqk0QL6UqLLjALKEkMXWQXU0OH0ghsceYvWkMFkCzWjanjLDA1vmaHhLTM0
-        2sUJHj6Ud9ocQ4f8VHwL72qWocPR19SDdzXL0OG/QLMMHU4tuMJoATO6BTsYLWBGt4BGCzTLyPjptzJz
-        NqU8ANCG/lHKjOWIAAAAAElFTkSuQmCC
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
+        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJ
+        TUUH4QoNBCwGfk3EvAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAIdSURBVEhL
+        ndZNSBVRGMbxKYkiW4Qg5qLQFCUqIl0ItWgRQkZQoCAYgQi1qKAISlEQ1PJj3caNVBrhwkX5EaKCEVGL
+        DEQi2iRRIi2K1BKytPw/93qG43icO9MDP5g5d2bee8/XXM/KVlzDFJbxL6JveIIChKYTrgd8whDuogev
+        sITgdT+QD2cOIXjDa5zGFgSzBy34A/uePjhzCfaF40hHqpzDb5j7ZuFMHewCebBTiW7cxj41WHkAc98v
+        NbhiF/isBiuHYT6Tfti5APNZpAKaQbthkoZHmMdbaFzsdCBWAWlGlOzFDGIXkDaEDXQxpmHfE6uAfIfm
+        /0WcRDlq8Ryu60MLLEB9vQjXzWE0NiMILfA1eejtggZSczyKI1Cu4mfycGNMFx1PnP1f7uEoSnEKmn1+
+        TIEXKFJDjGginMUBPIX2NG1+1fCjAuq/D1AhzY73Eb2DHj6I69iGy7gCPyrwJXnoHYPWQXsKDdA3z4FW
+        tx6uLf8NtOVnwY8K/MX+xFnqbMd5jEK/Vg8/AW2ak1DRdTFj0IUdakgRfeN6ZGKnGkgVPmLDwxUVWFmj
+        N5TWw32HW8iFBjEYjZ/z4YoZg2zcgBbNM4cmqGtu4g7srUR9v2nUd5pFGYmz8GghvkQNetVASjCcPHTH
+        vDLVBVHSiDGoSCsmcBCh0QLRTFL36BdpoWymDNqq1VVnoNlXAdf720/cvy1zeIgBPEYhAvG8VVoI4jqZ
+        ZCKHAAAAAElFTkSuQmCC
 </value>
   </data>
   <data name="BtnEliminar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -263,6 +271,12 @@
     <value>True</value>
   </metadata>
   <metadata name="LblChcCount.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="FrontPictureBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="BackPictureBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

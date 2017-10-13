@@ -31,6 +31,7 @@ Partial Class Recuento
         Me.BackPictureBox = New System.Windows.Forms.PictureBox()
         Me.PanelContainer = New System.Windows.Forms.Panel()
         Me.ActionPanel = New System.Windows.Forms.Panel()
+        Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.BtnBuscar = New System.Windows.Forms.Button()
         Me.BtnExpulsar = New System.Windows.Forms.Button()
         Me.BtnRestart = New System.Windows.Forms.Button()
@@ -57,7 +58,6 @@ Partial Class Recuento
         Me.ToolTip7 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip8 = New System.Windows.Forms.ToolTip(Me.components)
         Me.ToolTip9 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.ProgressBar1 = New System.Windows.Forms.ProgressBar()
         Me.PpalLayoutPanel.SuspendLayout()
         Me.InnerLayoutPanel.SuspendLayout()
         CType(Me.FrontPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -168,6 +168,14 @@ Partial Class Recuento
         Me.ActionPanel.Name = "ActionPanel"
         Me.ActionPanel.Size = New System.Drawing.Size(183, 105)
         Me.ActionPanel.TabIndex = 8
+        '
+        'ProgressBar1
+        '
+        Me.ProgressBar1.Enabled = False
+        Me.ProgressBar1.Location = New System.Drawing.Point(28, 86)
+        Me.ProgressBar1.Name = "ProgressBar1"
+        Me.ProgressBar1.Size = New System.Drawing.Size(122, 14)
+        Me.ProgressBar1.TabIndex = 15
         '
         'BtnBuscar
         '
@@ -337,13 +345,6 @@ Partial Class Recuento
         Me.LblChcCount.Text = "1/N"
         Me.LblChcCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.LblChcCount.UseMnemonic = False
-        '
-        'ProgressBar1
-        '
-        Me.ProgressBar1.Location = New System.Drawing.Point(28, 86)
-        Me.ProgressBar1.Name = "ProgressBar1"
-        Me.ProgressBar1.Size = New System.Drawing.Size(122, 14)
-        Me.ProgressBar1.TabIndex = 15
         '
         'Recuento
         '

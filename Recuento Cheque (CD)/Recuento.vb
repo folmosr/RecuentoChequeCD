@@ -145,6 +145,7 @@ Public Class Recuento
     End Sub
 
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
+        ProgressBar1.Enabled = True
         ProgressBar1.Increment(1)
         If (ActualizaCheque()) Then
             Dim Db As DataAccesss = New DataAccesss()
