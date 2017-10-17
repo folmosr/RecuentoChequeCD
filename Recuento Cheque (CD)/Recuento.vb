@@ -12,13 +12,13 @@ Imports Recuento_Cheque__CD_
 
 Public Class Recuento
 
-
 #Region "Private Methods"
 
     Private Function ActualizaCheque() As Boolean
         Dim currentDate As Date = DateTime.Now()
+        Dim resM As Boolean = IsValidMonto()
         Dim res As Boolean = DateTime.TryParse(DtFecha.Value.ToString(), currentDate)
-        If ((Convert.ToInt64(TxtMonto.Text.Replace(".", Nothing)) > 0) And (res) And (IsValidMonto())) Then
+        If ((res) And (resM)) Then
             Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             If (Not objCheque.Micr.IndexOf("?") > -1) Then
                 objCheque.Monto = Convert.ToInt64(TxtMonto.Text.Replace(".", Nothing))
@@ -30,6 +30,9 @@ Public Class Recuento
                 Return False
             End If
         Else
+            If (Not resM) Then
+                Return resM
+            End If
             If (Not res) Then
                 MessageBox.Show("Fecha inválida", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                 DtFecha.Select()
@@ -96,7 +99,8 @@ Public Class Recuento
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         Modulo.ListaCheques.RemoveAt(Indice)
         ReiniciaControlesDetalle()
-        If ((Indice = 0) And (Indice = ListaCheques.Count)) Then
+        Modulo.Indice = IIf((Modulo.Indice - 1) < 0, 0, (Modulo.Indice - 1))
+        If ((Modulo.Indice = 0) And (Modulo.Indice = ListaCheques.Count)) Then
             MessageBox.Show("Ya no hay cheques que mostrar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
         ElseIf (Modulo.Indice = Modulo.ListaCheques.Count) Then
             Modulo.Indice = 0
@@ -126,8 +130,8 @@ Public Class Recuento
 
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         Dim len As Int32 = Modulo.ListaCheques.Count
-        DigiAvanzada(999)
-        Modulo.Indice = len
+        DigiNormal(999)
+        'Modulo.Indice = len
         SetDatosAControles()
         SetMaximunToProgressBar()
     End Sub
@@ -145,14 +149,27 @@ Public Class Recuento
     End Sub
 
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
+        Dim Reintento As MsgBoxResult
+        Dim resp As Boolean
         ProgressBar1.Enabled = True
         ProgressBar1.Increment(1)
+        SetFinProceso()
         If (ActualizaCheque()) Then
             Dim Db As DataAccesss = New DataAccesss()
-            If (Db.Process(ListaCheques.ConvertToDataTable())) Then
-                UploadFile()
-                MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
-                Application.Exit()
+            If (Db.Process(Modulo.ListaCheques.ConvertToDataTable())) Then
+                Do
+                    resp = UploadFile()
+                    If (Not resp) Then
+                        Reintento = MessageBox.Show("Imposible cargar las imágenes digitalizadas", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                        If (Reintento = MsgBoxResult.Cancel) Then
+                            ProgressBar1.Increment(0)
+                            If (Db.RollBack()) Then
+                                MessageBox.Show("Proceso cancelado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                                Application.Exit()
+                            End If
+                        End If
+                    End If
+                Loop While (Not resp And Reintento = MsgBoxResult.Retry)
             End If
         End If
     End Sub
@@ -163,7 +180,7 @@ Public Class Recuento
             Modulo.ListaCheques.Clear()
             Modulo.DocsMin = 0
             ReiniciaControlesDetalle()
-            DigiAvanzada(999)
+            DigiNormal(999)
             MostrarPrimerChequeEnLista()
             SetMaximunToProgressBar()
         End If
@@ -185,10 +202,10 @@ Public Class Recuento
         BtnBuscar.Enabled = True
     End Sub
 
-    Private Sub DigiAvanzada(ByVal DocNum As Integer)
-        Dim IndicesTif As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesTif.Dat", True, Encoding.Default)
-        Dim IndicesJpg As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesJpg.Dat", True, Encoding.Default)
-        Dim IndicesBmp As IO.StreamWriter = New StreamWriter(PathImagenes + "Modulo.IndicesBmp.Dat", True, Encoding.Default)
+    Private Sub DigiNormal(ByVal DocNum As Integer)
+        Dim IndicesTif As IO.StreamWriter = New StreamWriter(PathImagenes + "IndicesTif.Dat", True, Encoding.Default)
+        Dim IndicesJpg As IO.StreamWriter = New StreamWriter(PathImagenes + "IndicesJpg.Dat", True, Encoding.Default)
+        Dim IndicesBmp As IO.StreamWriter = New StreamWriter(PathImagenes + "IndicesBmp.Dat", True, Encoding.Default)
 
         Dim ImgALen As String = Space(255)
         Dim ImgRLen As String = Space(255)
@@ -196,28 +213,14 @@ Public Class Recuento
         Dim MICROCR As String = Space(255)
         Dim ConfOCR As String = Space(255)
         Dim MICR As String = Space(255)
-        Dim EndosoSec As String = ""
+        'Dim EndosoSec As String = ""
         'Dim Tiempo1 As DateTime
         'Dim Tiempo2 As DateTime
+
         Dim Ret As MsgBoxResult
-        Dim ResVE As Integer
 
         Dim ImgA As String = ""
         Dim ImgR As String = ""
-        'Dim FontFile As String
-        'Dim ResOCR As Integer
-        'Dim Tamano As String
-
-        'Dim DCCFNTf As String
-        'Dim DCCFNTh As Integer
-        'Dim DCCOri1 As Integer
-
-        Dim lngMemHwndFront As Integer
-        Dim lngMemHwndBack As Integer
-
-        Dim lngMemPtrFront As Integer
-        Dim lngMemPtrBack As Integer
-
         'Dim Banderas As Integer
         Dim DispImagenA As Bitmap
         Dim DispImagenR As Bitmap
@@ -226,35 +229,36 @@ Public Class Recuento
 
         Dim flag As Boolean = False
         Dim retry As Int16 = 0
+
         ' Batch
         ' =====
         'If (CBBatch.Checked) Then
         Res = BUICSetParam(160, 1)
-        ' Else
-        'Res = BUICSetParam(160, 0)
+        'Else
+        '    Res = BUICSetParam(160, 0)
         'End If
 
         ' Resolución
         ' ==========
-        Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 1)
+        BUICSetParam(CFG_IMAGE_RESOLUTION, 0)
         'If (RB100.Checked) Then Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 0)
         'If (RB200.Checked) Then Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 1)
         'If (RB300.Checked) Then Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 4)
 
         ' Código de Banda
         ' ===============
-        Res = BUICSetParam(BPARAM_MAGNTYPE, 0)
+        BUICSetParam(BPARAM_MAGNTYPE, 0)
         'If (RBCMC7.Checked) Then Res = BUICSetParam(BPARAM_MAGNTYPE, 0)
         'If (RBE13B.Checked) Then Res = BUICSetParam(BPARAM_MAGNTYPE, 1)
         'If (RBEOCR.Checked) Then Res = BUICSetParam(BPARAM_MAGNTYPE, 1)
 
         ' 8 Bits 256 Tonos
         ' ================
-        Res = BUICSetParam(CFG_IMAGE_GRAY256LEVEL, 1)
+        Res = BUICSetParam(CFG_IMAGE_GRAY256LEVEL, 0)
 
         ' Calidad JPEG
         ' ============
-        Res = BUICSetParam(CFG_MISC_JPEG_QUALITY, 75)
+        Res = BUICSetParam(CFG_MISC_JPEG_QUALITY, Convert.ToInt32(50))
 
         ' OCR
         ' ===
@@ -262,6 +266,8 @@ Public Class Recuento
 
         ' ThresHold
         ' =========
+        'Res = BUICSetParam(BPARAM_FRONTTHRESHOLD, SBAThres.Value)
+        'Res = BUICSetParam(BPARAM_REARTHRESHOLD, SBRThres.Value)
         Res = BUICSetParam(BPARAM_FRONTTHRESHOLD, 9)
         Res = BUICSetParam(BPARAM_REARTHRESHOLD, 9)
 
@@ -272,88 +278,78 @@ Public Class Recuento
         ' Color
         ' =====
         'If (RBColor.Checked) Then
-        'Res = BUICSetParam(119, 1)
-        'Else
         Res = BUICSetParam(119, 0)
-        'End If
+        ' Else
+        ' Res = BUICSetParam(119, 0)
+        ' End If
 
         ' CX 30 Salida
         ' ============
         'If (CX30 And DocNum > 1) Then
-        'Res = BUICSetParam(191, 0)
+        ' Res = BUICSetParam(191, 0)
         'Else
         Res = BUICSetParam(191, 1)
-        'End If
+        ' End If
 
         ' SORT
         ' ====
         'If (SSort And SortEnabled And Not CBBatch.Checked) Then
-        ' Res = BUICSetParam(CFG_DEV_SORTER, 1)
-        'Res = BUICSetParam(TBPARAM_SORTER_INPUT, 0)
+        '    Res = BUICSetParam(CFG_DEV_SORTER, 1)
+        '    Res = BUICSetParam(TBPARAM_SORTER_INPUT, 0)
         'Else
-        'If (SSort And SortEnabled And CBBatch.Checked) Then
-        ' Res = BUICSetParam(CFG_DEV_SORTER, 1)
-        ' Res = BUICSetParam(TBPARAM_SORTER_INPUT, 1)
-        ' Dim Func As MyFunc
-        'Func = New MyFunc(AddressOf MICRCallBack)
-        ' Res = funcSetUpCallBack(&H100000, Func)
-        'Else
+        '    If (SSort And SortEnabled And CBBatch.Checked) Then
+        '        Res = BUICSetParam(CFG_DEV_SORTER, 1)
+        '        Res = BUICSetParam(TBPARAM_SORTER_INPUT, 1)
+        '        Dim Func As MyFunc
+        '        Func = New MyFunc(AddressOf MICRCallBack)
+        '        Res = funcSetUpCallBack(&H100000, Func)
+        '    Else
         Res = BUICSetParam(CFG_DEV_SORTER, 0)
         '    End If
         'End If
 
         ' DCC Franqueo
-        ' ============
+        '' ============
         'If (CX30 Or TS240) Then
         Res = BUICSetParam(196, Franqueo)
         'Else
-        'Res = BUICSetParam(196, 0)
+        '    Res = BUICSetParam(196, 0)
         'End If
 
         ' Endoso Virtual
         ' ==============
-        Res = BUICSetParam(170, 1)
-
-        ' Reserva Memoria
-        ' ===============
-        If Not MemoryGet(lngMemHwndFront, lngMemPtrFront) Then
-            MsgBox("Unable to allocate memory for Front image.")
-        End If
-
-        If Not MemoryGet(lngMemHwndBack, lngMemPtrBack) Then
-            MsgBox("Unable to allocate memory for Back image.")
-        End If
+        'Res = BUICSetParam(170, 1)
 
         ' Endoso Real
         ' ===========
         'If (EndosoReal) Then
-        'If (String.Compare(Endoso_Sec, "1") = 0) Then
-        'If (RBBMP.Checked) Then EndosoSec = SiguienteImagen(3).ToString("00000")
-        ' If (RBTiff.Checked) Then EndosoSec = SiguienteImagen(1).ToString("00000")
-        '  If (RBJPEG.Checked) Then EndosoSec = SiguienteImagen(2).ToString("00000")
-        '   If (RBColor.Checked) Then EndosoSec = SiguienteImagen(2).ToString("00000")
-        'Else
-        '   EndosoSec = ""
-        'End If
-        'If (EndosoBmpI) Then
-        'Res = BUICSetParam(CFG_DEV_PRINTER, 1)
-        'CheckEndorsementStart(ScannerType, 1000)
-        ' CheckEndorsementText(ScannerType, Convert.ToInt32(Endoso_Hgh), 0, 1, 1, 0, Endoso_Fnt, EndosoText + " " + EndosoSec)
-        '  CheckEndorsementEnd(ScannerType, PathInicio + "Endoso.Bmp")
-        '   Res = funcTS400SetPrint(35, Convert.ToInt32(Endoso_Pos), PathInicio + "Endoso.Bmp")
-        'End If
-        'If (EndosoFont) Then
-        'Res = BUICSetParam(CFG_DEV_PRINTER, 1)
-        'If (ScannerType = 200) Then
-        '     FontFile = PathInicio + "Ts200_IJAsciiFont.bin"
-        '  Else
-        '       FontFile = PathInicio + "Pc2424.fnt"
+        '    If (String.Compare(Endoso_Sec, "1") = 0) Then
+        '        If (RBBMP.Checked) Then EndosoSec = SiguienteImagen(3).ToString("00000")
+        '        If (RBTiff.Checked) Then EndosoSec = SiguienteImagen(1).ToString("00000")
+        '        If (RBJPEG.Checked) Then EndosoSec = SiguienteImagen(2).ToString("00000")
+        '        If (RBColor.Checked) Then EndosoSec = SiguienteImagen(2).ToString("00000")
+        '    Else
+        '        EndosoSec = ""
         '    End If
-        '     Res = funcTS400SetLoadFont(0, 0, FontFile)
-        '      Res = funcTS400SetPrint(34, Convert.ToInt32(Endoso_Pos), EndosoText + " " + EndosoSec)
-        '   End If
+        '    If (EndosoBmpI) Then
+        '        Res = BUICSetParam(CFG_DEV_PRINTER, 1)
+        '        CheckEndorsementStart(ScannerType, 1000)
+        '        CheckEndorsementText(ScannerType, Convert.ToInt32(Endoso_Hgh), 0, 1, 1, 0, Endoso_Fnt, EndosoText + " " + EndosoSec)
+        '        CheckEndorsementEnd(ScannerType, PathInicio + "Endoso.Bmp")
+        '        Res = funcTS400SetPrint(35, Convert.ToInt32(Endoso_Pos), PathInicio + "Endoso.Bmp")
+        '    End If
+        '    If (EndosoFont) Then
+        '        Res = BUICSetParam(CFG_DEV_PRINTER, 1)
+        '        If (ScannerType = 200) Then
+        '            FontFile = PathInicio + "Ts200_IJAsciiFont.bin"
+        '        Else
+        '            FontFile = PathInicio + "Pc2424.fnt"
+        '        End If
+        '        Res = funcTS400SetLoadFont(0, 0, FontFile)
+        '        Res = funcTS400SetPrint(34, Convert.ToInt32(Endoso_Pos), EndosoText + " " + EndosoSec)
+        '    End If
         'Else
-        Res = BUICSetParam(CFG_DEV_PRINTER, 0)
+        '    Res = BUICSetParam(CFG_DEV_PRINTER, 0)
         'End If
 
         If (Res >= 0) Then
@@ -367,88 +363,99 @@ Public Class Recuento
 
                 'Tiempo1 = DateTime.Now.AddSeconds(5)
                 'If (CX30 And DocNum > 1) Then
-                ' Do
-                ' Res = BUICStatus()
-                'Tiempo2 = DateTime.Now()
-                'Application.DoEvents()
-                'Loop Until (Res = 1 Or Tiempo1 < Tiempo2)
+                '    Do
+                '        Res = BUICStatus()
+                '        Tiempo2 = DateTime.Now()
+                '        Application.DoEvents()
+                '    Loop Until (Res = 1 Or Tiempo1 < Tiempo2)
                 'End If
 
                 'If (RBTiff.Checked) Then
-                'Banderas = 6
-                'If (CB1.Checked) Then Banderas = Banderas + 1
-                'If (CB4.Checked) Then Banderas = Banderas + 8
-                'If (CB5.Checked) Then Banderas = Banderas + 16
-                'If (CB6.Checked) Then Banderas = Banderas + 32
-                'If (CB7.Checked) Then Banderas = Banderas + 64
-                'If (CB8.Checked) Then Banderas = Banderas + 256
-                SiguienteI = SiguienteImagen(1)
-                ImagenActual = "A" + SiguienteI.ToString("00000") + ".Tif"
-                ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Tif"
-                ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Tif"
-                Res = BUICScanMemoryGray(7, lngMemPtrFront, ImgALen, lngMemPtrBack, ImgRLen, MICR, MICRLen, 3)
-
-                'If (DCCEndosoA Or DCCEndosoR) Then
-                'ResVE = BUICSetParam(170, 1)
-                'If (DCCendosoS) Then
-                'EndosoSec = DCCendosoT + " " + SiguienteI.ToString()
-                'Else
-                '   EndosoSec = DCCendosoT
+                '    SiguienteI = SiguienteImagen(1)
+                '    ImagenActual = "A" + SiguienteI.ToString("00000") + ".Tif"
+                '    ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Tif"
+                '    ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Tif"
+                '    Res = BUICScan(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen)
+                '    If (Res >= 0) Then
+                '        MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
+                '        MICR = MICR.Replace("@", "?")
+                '        IndicesTif.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
+                '    Else
+                '        ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Tif"
+                '    End If
+                '    If (Res >= 0 And RBEOCR.Checked) Then
+                '        ResOCR = FindE13BMicr(ImgA, 1, 0, MICROCR, ConfOCR)
+                '        If (ResOCR = 0) Then
+                '            MICROCR = MICROCR.Substring(0, MICROCR.IndexOf(Chr(0)))
+                '            MICROCR = MICROCR.Replace("@", "?")
+                '        Else
+                '            MICROCR = "---"
+                '        End If
+                '    Else
+                '        MICROCR = "---"
+                '    End If
                 'End If
-                '   EndosoSec = EndosoSec.Replace("!|", Chr(10))
-                '  Select Case DCCEndosoO.Substring(0, 3)
-                ' Case "000" : DCCOri1 = 0
-                'Case "090" : DCCOri1 = 1
-                'Case "180" : DCCOri1 = 2
-                'Case "270" : DCCOri1 = 3
-                'End Select
-                'DCCFNTh = Convert.ToInt32(DCCEndosoF.Substring(DCCEndosoF.Length - 2, 2))
-                'DCCFNTf = DCCEndosoF.Substring(0, DCCEndosoF.Length - 3)
-                'If (DCCEndosoA) Then ResVE = DCCVirtualEndorsement(lngMemPtrFront, EndosoSec, DCCFNTh, DCCEndosoX, DCCEndosoY, 1, 0, DCCOri1, 0, 0, 0, 0, DCCFNTf)
-                'If (DCCEndosoR) Then ResVE = DCCVirtualEndorsement(lngMemPtrBack, EndosoSec, DCCFNTh, DCCEndosoX, DCCEndosoY, 1, 0, DCCOri1, 0, 0, 0, 0, DCCFNTf)
-                'Else
-                ResVE = BUICSetParam(170, 0)
-                ' End If
 
+                'If (RBJPEG.Checked) Then
+                'SiguienteI = SiguienteImagen(2)
+                'ImagenActual = "A" + SiguienteI.ToString("00000") + ".Tif"
+                'ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Tif" '".Jpg"
+                'ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Tif"
+                'Res = BUICScanGray(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen, 4)
+                'If (Res >= 0) Then
+                '    MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
+                '    MICR = MICR.Replace("@", "?")
+                '    IndicesJpg.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
+                'Else
+                '    ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Tif"
+                'End If
+                '    MICROCR = "---"
+                'End If
+
+                'If (RBBMP.Checked) Then
+                '    SiguienteI = SiguienteImagen(3)
+                '    ImagenActual = "A" + SiguienteI.ToString("00000") + ".Bmp"
+                '    ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Bmp"
+                '    ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Bmp"
+                '    Res = BUICScanGray(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen, 3)
+                '    If (Res >= 0) Then
+                '        MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
+                '        MICR = MICR.Replace("@", "?")
+                '        IndicesBmp.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
+                '    Else
+                '        ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Bmp"
+                '    End If
+                '    MICROCR = "---"
+                'End If
+
+                'If (RBColor.Checked) Then
+                SiguienteI = SiguienteImagen(2)
+                ImagenActual = "A" + SiguienteI.ToString("00000") + ".Jpg"
+                ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Jpg"
+                ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Jpg"
+                Res = BUICScanGray(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen, 4)
                 If (Res >= 0) Then
-                    Res = funcConvGrayImageEdgeDetectBW(lngMemPtrFront, ImgA, 500, 6)
-                    Res = funcConvGrayImageEdgeDetectBW(lngMemPtrBack, ImgR, 500, 6)
-                    If (Res >= 0) Then
-                        MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
-                        MICR = MICR.Replace("@", "?")
-                        IndicesTif.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
-                    Else
-                        ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Tif"
-                    End If
-                    'If (Res >= 0 And RBEOCR.Checked) Then
-                    'ResOCR = FindE13BMicr(ImgA, 1, 0, MICROCR, ConfOCR)
-                    'If (ResOCR = 0) Then
-                    'MICROCR = MICROCR.Substring(0, MICROCR.IndexOf(Chr(0)))
-                    'MICROCR = MICROCR.Replace("@", "?")
-                    'Else
-                    'MICROCR = "---"
-                    '    End If
-                    'Else
-                    'MICROCR = "---"
-                    'End If
+                    MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
+                    MICR = MICR.Replace("@", "?")
+                    IndicesJpg.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
                 Else
-                    ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Tif"
-                    MICROCR = "---"
+                    ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".JPG"
                 End If
+                'MICROCR = "---"
                 'End If
 
                 If (Res >= 0) Then
                     'If (SSort And SortEnabled And Not CBBatch.Checked) Then
-                    'Dim ImgSrt As Integer
-                    ' If (Sort1) Then
-                    'ImgSrt = Convert.ToInt32(ImagenActual.Substring(1, 5))
-                    'If (ImgSrt = Math.Floor(ImgSrt / 2) * 2) Then
-                    'TS400SetPocket(0)
-                    'Else
-                    '   TS400SetPocket(1)
-                    'End If
-                    'End If
-                    'If (Sort2) Then
+                    '    Dim ImgSrt As Integer
+                    '    If (Sort1) Then
+                    '        ImgSrt = Convert.ToInt32(ImagenActual.Substring(1, 5))
+                    '        If (ImgSrt = Math.Floor(ImgSrt / 2) * 2) Then
+                    '            TS400SetPocket(0)
+                    '        Else
+                    '            TS400SetPocket(1)
+                    '        End If
+                    '    End If
+                    '    If (Sort2) Then
                     '        ImgSrt = Convert.ToInt32(ImagenActual.Substring(1, 5))
                     '        If (ImgSrt = Math.Floor(ImgSrt / 4) * 4) Then
                     '            TS400SetPocket(1)
@@ -503,8 +510,8 @@ Public Class Recuento
                     Exit For
                 End If
             Next Ciclo
-            MemoryRelease(lngMemHwndFront)
-            MemoryRelease(lngMemHwndBack)
+            'MemoryRelease(lngMemHwndFront)
+            'MemoryRelease(lngMemHwndBack)
             If (retry = 1) Then
                 Reintentar(IndicesTif, IndicesJpg, IndicesBmp)
             ElseIf (retry = 2) Then
@@ -521,6 +528,14 @@ Public Class Recuento
         IndicesTif.Close()
         IndicesJpg.Close()
         IndicesBmp.Close()
+    End Sub
+
+    Private Sub DtFecha_Enter(sender As Object, e As EventArgs) Handles DtFecha.Enter
+        ActualizaCheque()
+        ActualizaTotal()
+        'If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
+        '    TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
+        'End If
     End Sub
 
     Private Sub DtFecha_Keypress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles DtFecha.KeyPress
@@ -752,28 +767,33 @@ Public Class Recuento
     End Function
 
     Private Sub GetQueryStringParameters()
-        Dim NameValueTable As New NameValueCollection()
-        Dim values() As String
-        If (ApplicationDeployment.IsNetworkDeployed) Then
-            Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
-            If (qString IsNot Nothing) Then
-                NameValueTable = HttpUtility.ParseQueryString(qString)
-                For Each key In NameValueTable.Keys
-                    values = NameValueTable.GetValues(key)
-                    For Each value As String In values
-                        If (key = "id_recuento_contenedor") Then
-                            Modulo.Id_Recuento_Contenedor = value
-                        ElseIf (key = "cliente") Then
-                            Modulo.Cliente = value
-                        ElseIf (key = "local") Then
-                            Modulo.Sucursal = value
-                        Else
-                            Modulo.Tipo_Recuento = value
-                        End If
-                    Next value
-                Next key
-            End If
-        End If
+        Modulo.Id_Recuento_Contenedor = "255338"
+        Modulo.Sucursal = "SUCURSAL 1 USUARIO 1"
+        Modulo.Cliente = "USUARIO 1 PRUEBA"
+        Modulo.Tipo_Recuento = 1
+        Modulo.Id_Recuento = 168
+        'Dim NameValueTable As New NameValueCollection()
+        'Dim values() As String
+        'If (ApplicationDeployment.IsNetworkDeployed) Then
+        '    Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
+        '    If (qString IsNot Nothing) Then
+        '        NameValueTable = HttpUtility.ParseQueryString(qString)
+        '        For Each key In NameValueTable.Keys
+        '            values = NameValueTable.GetValues(key)
+        '            For Each value As String In values
+        '                If (key = "id_recuento_contenedor") Then
+        '                    Modulo.Id_Recuento_Contenedor = value
+        '                ElseIf (key = "cliente") Then
+        '                    Modulo.Cliente = value
+        '                ElseIf (key = "local") Then
+        '                    Modulo.Sucursal = value
+        '                Else
+        '                    Modulo.Tipo_Recuento = value
+        '                End If
+        '            Next value
+        '        Next key
+        '    End If
+        'End If
     End Sub
 
     Private Function Inicializador() As Boolean
@@ -891,7 +911,7 @@ Public Class Recuento
         BloqueaDetalle()
         If (Inicializador()) Then
             LimpiaContenedorDeImagenes()
-            DigiAvanzada(999)
+            DigiNormal(999)
             MostrarPrimerChequeEnLista()
             SetMaximunToProgressBar()
         End If
@@ -911,7 +931,7 @@ Public Class Recuento
         indicesTif.Close()
         indicesJpg.Close()
         indicesBmp.Close()
-        DigiAvanzada(999)
+        DigiNormal(999)
         MostrarPrimerChequeEnLista()
     End Sub
 
@@ -955,6 +975,11 @@ Public Class Recuento
         TxtMonto.Select()
     End Sub
 
+    Private Sub SetFinProceso()
+        For Each item In Modulo.ListaCheques
+            item.FinProceso = DateTime.Now.ToString()
+        Next
+    End Sub
     Private Sub SetMaximunToProgressBar()
         ProgressBar1.Maximum = ListaCheques.Count
     End Sub
@@ -1008,21 +1033,13 @@ Public Class Recuento
             e.Handled = True
         End If
         If (keyvalue = Modulo.ENTER) Then
+            TxtMonto.Text = Int32.Parse(TxtMonto.Text).ToString("N0")
             If (IsValidMonto()) Then
                 DtFecha.Select()
             End If
         End If
     End Sub
-
-    Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
-        ActualizaCheque()
-        ActualizaTotal()
-        'If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
-        '    TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
-        'End If
-    End Sub
-
-    Private Sub UploadFile()
+    Private Function UploadFile() As Boolean
         Try
             Dim file_name_front = ConfigurationManager.AppSettings.Item("machine") & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
             Dim file_name_back = ConfigurationManager.AppSettings.Item("machine") & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
@@ -1035,10 +1052,11 @@ Public Class Recuento
                 item.ImagenABitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
                 ProgressBar1.Increment(1)
             Next
+            Return True
         Catch e As Exception
-            MessageBox.Show("Imposible cargar las imágenes digitalizadas" & vbNewLine & e.Message, "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            Return False
         End Try
-    End Sub
+    End Function
 
 #End Region
 

@@ -70,6 +70,7 @@ Module Modulo
     Public TS240 As Boolean
     Public ZERO As Int16 = 48
     Public Id_Recuento_Contenedor As String
+    Public Id_Recuento As String
     Public Cliente As String
     Public Sucursal As String
     Public Tipo_Recuento As String

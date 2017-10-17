@@ -1,24 +1,26 @@
 ﻿Public Class Cheque
 
-#Region "Fields"
+#Region "Private Fields"
 
     Private _codBanco As String
     Private _codPlza As String
     Private _ctaCorriente As String
     Private _fecha As Date
+    Private _finProceso As String
+    Private _id_recuento_contenedor As Int32
     Private _imagenA As String
     Private _imagenABitmap As Bitmap
     Private _imagenR As String
     Private _imagenRBitmap As Bitmap
+    Private _iniProceso As String
     Private _micr As String
     Private _monto As Long
     Private _nroCheque As String
-    Private _id_recuento_contenedor As Int32
     Private _tipo_recuento As String
 
-#End Region 'Fields
+#End Region
 
-#Region "Constructors"
+#Region "Public Constructors"
 
     Public Sub New(ByVal micr As String, ByVal imagenA As Bitmap, ByVal imagenR As Bitmap, ByVal idRecuento As Int32, ByVal tipo As String)
         Me.Micr = micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty)
@@ -37,11 +39,12 @@
         Me.Id_Recuento_Contenedor = idRecuento
         Me.Tipo_Recuento = tipo
         Me.Monto = 0
+        Me.IniProceso = DateTime.Now.ToString()
     End Sub
 
-#End Region 'Constructors
+#End Region
 
-#Region "Properties"
+#Region "Public Properties"
 
     Public Property CodBanco() As String
         Get
@@ -76,6 +79,24 @@
         End Get
         Set(value As Date)
             _fecha = value
+        End Set
+    End Property
+
+    Public Property FinProceso As String
+        Get
+            Return _finProceso
+        End Get
+        Set(value As String)
+            _finProceso = value
+        End Set
+    End Property
+
+    Public Property Id_Recuento_Contenedor As Int32
+        Get
+            Return _id_recuento_contenedor
+        End Get
+        Set(value As Int32)
+            _id_recuento_contenedor = value
         End Set
     End Property
 
@@ -115,6 +136,15 @@
         End Set
     End Property
 
+    Public Property IniProceso As String
+        Get
+            Return _iniProceso
+        End Get
+        Set(value As String)
+            _iniProceso = value
+        End Set
+    End Property
+
     Public Property Micr() As String
         Get
             Return _micr
@@ -141,16 +171,6 @@
             _nroCheque = value
         End Set
     End Property
-
-    Public Property Id_Recuento_Contenedor As Int32
-        Get
-            Return _id_recuento_contenedor
-        End Get
-        Set(value As Int32)
-            _id_recuento_contenedor = value
-        End Set
-    End Property
-
     Public Property Tipo_Recuento As String
         Get
             Return _tipo_recuento
@@ -160,13 +180,17 @@
         End Set
     End Property
 
-#End Region 'Properties
+#End Region
 
-#Region "Methods"
+#Region "Public Methods"
 
     Public Sub SetMICR()
         Me.Micr = (Me.NroCheque & Me.CodBanco & Me.CodPlza & Me.CtaCorriente)
     End Sub
+
+#End Region
+
+#Region "Private Methods"
 
     Private Function Base64ToImage(ByVal base64string As String) As System.Drawing.Image
         'Setup image and get data stream together
@@ -198,6 +222,6 @@
         Return Convert.ToBase64String(bitmapBytes)
     End Function
 
-#End Region 'Methods
+#End Region
 
 End Class
