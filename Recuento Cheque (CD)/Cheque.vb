@@ -39,7 +39,7 @@
         Me.Id_Recuento_Contenedor = idRecuento
         Me.Tipo_Recuento = tipo
         Me.Monto = 0
-        Me.IniProceso = DateTime.Now.ToString()
+        Me.IniProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
     End Sub
 
 #End Region

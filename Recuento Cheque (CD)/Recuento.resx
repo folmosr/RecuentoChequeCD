@@ -180,19 +180,16 @@
   </data>
   <data name="BtnGuardar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6
-        JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJ
-        TUUH4QoNBCwGfk3EvAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAIdSURBVEhL
-        ndZNSBVRGMbxKYkiW4Qg5qLQFCUqIl0ItWgRQkZQoCAYgQi1qKAISlEQ1PJj3caNVBrhwkX5EaKCEVGL
-        DEQi2iRRIi2K1BKytPw/93qG43icO9MDP5g5d2bee8/XXM/KVlzDFJbxL6JveIIChKYTrgd8whDuogev
-        sITgdT+QD2cOIXjDa5zGFgSzBy34A/uePjhzCfaF40hHqpzDb5j7ZuFMHewCebBTiW7cxj41WHkAc98v
-        NbhiF/isBiuHYT6Tfti5APNZpAKaQbthkoZHmMdbaFzsdCBWAWlGlOzFDGIXkDaEDXQxpmHfE6uAfIfm
-        /0WcRDlq8Ryu60MLLEB9vQjXzWE0NiMILfA1eejtggZSczyKI1Cu4mfycGNMFx1PnP1f7uEoSnEKmn1+
-        TIEXKFJDjGginMUBPIX2NG1+1fCjAuq/D1AhzY73Eb2DHj6I69iGy7gCPyrwJXnoHYPWQXsKDdA3z4FW
-        tx6uLf8NtOVnwY8K/MX+xFnqbMd5jEK/Vg8/AW2ak1DRdTFj0IUdakgRfeN6ZGKnGkgVPmLDwxUVWFmj
-        N5TWw32HW8iFBjEYjZ/z4YoZg2zcgBbNM4cmqGtu4g7srUR9v2nUd5pFGYmz8GghvkQNetVASjCcPHTH
-        vDLVBVHSiDGoSCsmcBCh0QLRTFL36BdpoWymDNqq1VVnoNlXAdf720/cvy1zeIgBPEYhAvG8VVoI4jqZ
-        ZCKHAAAAAElFTkSuQmCC
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAdRJREFUSEvF
+        VkFOwzAQjMFOaao2SDwCRRVSH4BUDn1BbxUIIfEgeuMPVOJJiEr9BFzKjLtO4jaxDRdWGiW2Z8fxenfb
+        7N9ssbhTgAaMPJUseZbK80ychtNpdZnn+ROmNsAn8C3g+0YpdV9V1yW4Bfmp4mfAeDQqHrXWO0zt+6D1
+        +d4YvSuK4QP9MBc2kubz28lgkL/SGVO94Do+wD5lbg14J/BOxAG//I/iDi+ANdHT7cHwEJZ+cXBs+HrE
+        HZbC450YjO0GmhcaiznFgTL0EUpl29ns5go8Xnx9AiPZ0ulEUJTiwLhr3YE8ROIZvCar8MKdmIq9TgwL
+        xQFmS5BnjHmvxWkyYG73OskJXCoGeQjTB+ZOjAVUO1AMsDGXZ2eeO54TxxTxZReP7HiDZHHyWuK9G9Qh
+        ah/XzQmcxXidIbKXHHAinMV4b4C724OxcUWcCBuWBN6K4kBTyeyKbFwBp/riI+LbspxcgOdXMlCwKwqp
+        ExQHIpWs2CrI8ysZ4I7MFnbFE8eEsFB8DQ2XfX4l14NDy2VXrB1TxdnqRZybNBfsDRpbsnEliG9bYQnW
+        jWcksSuycbG3SPmzgAi+MxVXcqG/Fre/D0DwtzaV55k4Rf8lpPGy7AclsnX2Tn0OXgAAAABJRU5ErkJg
+        gg==
 </value>
   </data>
   <data name="BtnEliminar.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -271,12 +268,6 @@
     <value>True</value>
   </metadata>
   <metadata name="LblChcCount.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="FrontPictureBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="BackPictureBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="ToolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

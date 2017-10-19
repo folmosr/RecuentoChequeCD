@@ -53,6 +53,50 @@ Public Class DataAccesss
         End Try
         Return True
     End Function
+    Public Function InsertLista() As Boolean
+        Dim con As New SqlConnection
+        Dim cmd As New SqlCommand
+        Try
+            Dim commands As String = Nothing
+            con.ConnectionString = ConnectionString()
+            con.Open()
+            cmd.Connection = con
+            For Each item As Cheque In Modulo.ListaCheques
+
+                cmd.CommandText = "INSERT INTO [SIGM2_VER3].[dbo].[Detalle_Documentos]
+                                   ([Monto]
+                                   ,[Fecha]
+                                   ,[NroCheque]
+                                   ,[CodBanco]
+                                   ,[CodPlza]
+                                   ,[CtaCorriente]
+                                   ,[Id_Recuento_Contenedor]
+                                   ,[Tipo_Recuento]
+                                   ,[IniProceso]
+                                   ,[FinProceso])
+                             VALUES
+                                   (" & item.Monto & "
+                                   ,'" & item.Fecha.ToString("yyyy-MM-dd HH:mm:ss") & "'
+                                   ,'" & item.NroCheque & "'
+                                   ,'" & item.CodBanco & "'
+                                   ,'" & item.CodPlza & "'
+                                   ,'" & item.CtaCorriente & "'
+                                   ," & item.Id_Recuento_Contenedor & "
+                                   ,'" & item.Tipo_Recuento & "'
+                                   ,'" & item.IniProceso & "'
+                                   ,'" & item.FinProceso & "')
+                "
+                cmd.ExecuteNonQuery()
+            Next
+
+        Catch ex As Exception
+            MessageBox.Show("Se ha producido error(es) al tratar de eliminar registros " & vbNewLine & ex.Message, "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            Return False
+        Finally
+            con.Close()
+        End Try
+        Return True
+    End Function
 #End Region 'Methods
 
 End Class

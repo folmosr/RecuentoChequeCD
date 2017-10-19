@@ -278,7 +278,7 @@ Partial Class Recuento
         Me.TxtTotal.ReadOnly = True
         Me.TxtTotal.Size = New System.Drawing.Size(160, 25)
         Me.TxtTotal.TabIndex = 5
-        Me.TxtTotal.Text = "0,0"
+        Me.TxtTotal.Text = "0"
         '
         'LblTotal
         '

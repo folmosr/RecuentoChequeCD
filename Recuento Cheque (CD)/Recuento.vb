@@ -59,8 +59,8 @@ Public Class Recuento
         BtnGuardar.Enabled = False
         BtnEliminar.Enabled = False
         BtnProcesar.Enabled = False
-        BtnRestart.Enabled = False
-        BtnExpulsar.Enabled = False
+        'BtnRestart.Enabled = False
+        'BtnExpulsar.Enabled = False
         BtnBuscar.Enabled = False
     End Sub
 
@@ -151,25 +151,29 @@ Public Class Recuento
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
         Dim Reintento As MsgBoxResult
         Dim resp As Boolean
+        Dim Db As DataAccesss
+        BloqueaDetalle()
+        BtnRestart.Enabled = False
+        BtnExpulsar.Enabled = False
         ProgressBar1.Enabled = True
-        ProgressBar1.Increment(1)
+        ProgressBar1.UseWaitCursor = True
         SetFinProceso()
         If (ActualizaCheque()) Then
-            Dim Db As DataAccesss = New DataAccesss()
-            If (Db.Process(Modulo.ListaCheques.ConvertToDataTable())) Then
-                Do
-                    resp = UploadFile()
-                    If (Not resp) Then
-                        Reintento = MessageBox.Show("Imposible cargar las imágenes digitalizadas", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                        If (Reintento = MsgBoxResult.Cancel) Then
-                            ProgressBar1.Increment(0)
-                            If (Db.RollBack()) Then
-                                MessageBox.Show("Proceso cancelado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
-                                Application.Exit()
-                            End If
-                        End If
-                    End If
-                Loop While (Not resp And Reintento = MsgBoxResult.Retry)
+            If (UploadFile()) Then
+                Db = New DataAccesss()
+                resp = Db.Process(Modulo.ListaCheques.ConvertToDataTable())
+                If (Not resp) Then
+                    Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                    ProgressBar1.Value = 0
+                    Application.Exit()
+                Else
+                    ProgressBar1.Increment(1)
+                    MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                    Application.Exit()
+                End If
+            Else
+                MessageBox.Show("Imposible almacenar las imagenes digitalizadas", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                Application.Exit()
             End If
         End If
     End Sub
@@ -197,8 +201,8 @@ Public Class Recuento
         BtnGuardar.Enabled = True
         BtnEliminar.Enabled = True
         BtnProcesar.Enabled = True
-        BtnRestart.Enabled = True
-        BtnExpulsar.Enabled = True
+        'BtnRestart.Enabled = True
+        'BtnExpulsar.Enabled = True
         BtnBuscar.Enabled = True
     End Sub
 
@@ -514,8 +518,8 @@ Public Class Recuento
             'MemoryRelease(lngMemHwndBack)
             If (retry = 1) Then
                 Reintentar(IndicesTif, IndicesJpg, IndicesBmp)
-            ElseIf (retry = 2) Then
-                Application.Exit()
+                'ElseIf (retry = 2) Then
+                '    Application.Exit()
             End If
         Else
             Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
@@ -767,33 +771,30 @@ Public Class Recuento
     End Function
 
     Private Sub GetQueryStringParameters()
-        Modulo.Id_Recuento_Contenedor = "255338"
-        Modulo.Sucursal = "SUCURSAL 1 USUARIO 1"
-        Modulo.Cliente = "USUARIO 1 PRUEBA"
-        Modulo.Tipo_Recuento = 1
-        Modulo.Id_Recuento = 168
-        'Dim NameValueTable As New NameValueCollection()
-        'Dim values() As String
-        'If (ApplicationDeployment.IsNetworkDeployed) Then
-        '    Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
-        '    If (qString IsNot Nothing) Then
-        '        NameValueTable = HttpUtility.ParseQueryString(qString)
-        '        For Each key In NameValueTable.Keys
-        '            values = NameValueTable.GetValues(key)
-        '            For Each value As String In values
-        '                If (key = "id_recuento_contenedor") Then
-        '                    Modulo.Id_Recuento_Contenedor = value
-        '                ElseIf (key = "cliente") Then
-        '                    Modulo.Cliente = value
-        '                ElseIf (key = "local") Then
-        '                    Modulo.Sucursal = value
-        '                Else
-        '                    Modulo.Tipo_Recuento = value
-        '                End If
-        '            Next value
-        '        Next key
-        '    End If
-        'End If
+        Dim NameValueTable As New NameValueCollection()
+        Dim values() As String
+        If (ApplicationDeployment.IsNetworkDeployed) Then
+            Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
+            If (qString IsNot Nothing) Then
+                NameValueTable = HttpUtility.ParseQueryString(qString)
+                For Each key In NameValueTable.Keys
+                    values = NameValueTable.GetValues(key)
+                    For Each value As String In values
+                        If (key = "id_recuento_contenedor") Then
+                            Modulo.Id_Recuento_Contenedor = value
+                        ElseIf (key = "cliente") Then
+                            Modulo.Cliente = value
+                        ElseIf (key = "local") Then
+                            Modulo.Sucursal = value
+                        ElseIf (key = "tipo_recuento") Then
+                            Modulo.Tipo_Recuento = value
+                        Else
+                            Modulo.Id_Recuento = value
+                        End If
+                    Next value
+                Next key
+            End If
+        End If
     End Sub
 
     Private Function Inicializador() As Boolean
@@ -977,7 +978,7 @@ Public Class Recuento
 
     Private Sub SetFinProceso()
         For Each item In Modulo.ListaCheques
-            item.FinProceso = DateTime.Now.ToString()
+            item.FinProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
         Next
     End Sub
     Private Sub SetMaximunToProgressBar()
@@ -1033,7 +1034,7 @@ Public Class Recuento
             e.Handled = True
         End If
         If (keyvalue = Modulo.ENTER) Then
-            TxtMonto.Text = Int32.Parse(TxtMonto.Text).ToString("N0")
+            TxtMonto.Text = Int32.Parse(TxtMonto.Text.Replace(".", Nothing)).ToString("N0")
             If (IsValidMonto()) Then
                 DtFecha.Select()
             End If
@@ -1046,10 +1047,13 @@ Public Class Recuento
             Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
             If Not IO.Directory.Exists(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
                 IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+                'Else
+                '    IO.Directory.Delete(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
+                '    IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
                 item.ImagenABitmap.Save(file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
-                item.ImagenABitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
+                item.ImagenRBitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
                 ProgressBar1.Increment(1)
             Next
             Return True
@@ -1057,6 +1061,9 @@ Public Class Recuento
             Return False
         End Try
     End Function
+    Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
+        TxtMonto.Text = Int32.Parse(TxtMonto.Text.Replace(".", Nothing)).ToString("N0")
+    End Sub
 
 #End Region
 
