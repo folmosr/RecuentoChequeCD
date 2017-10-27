@@ -5,7 +5,8 @@
     Private _codBanco As String
     Private _codPlza As String
     Private _ctaCorriente As String
-    Private _fecha As Date
+    Private _estado As Int16
+    Private _fecha As String
     Private _finProceso As String
     Private _id_recuento_contenedor As Int32
     Private _imagenA As String
@@ -35,11 +36,16 @@
         Me.ImagenA = GetBase64Code(imagenR)
         Me.ImagenABitmap = imagenA
         Me.ImagenRBitmap = imagenR
-        Me.Fecha = Date.Now
+        Me.Fecha = DateTime.Now.ToString("dd/MM/yyyy")
         Me.Id_Recuento_Contenedor = idRecuento
         Me.Tipo_Recuento = tipo
         Me.Monto = 0
         Me.IniProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+
+    End Sub
+
+    Public Sub New()
+
     End Sub
 
 #End Region
@@ -72,12 +78,26 @@
             _ctaCorriente = value
         End Set
     End Property
+    ''' <summary>
+    ''' Estado de la entidad
+    ''' 0 sin procesar
+    ''' 1 procesado
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property Estado As Short
+        Get
+            Return _estado
+        End Get
+        Set(value As Short)
+            _estado = value
+        End Set
+    End Property
 
-    Public Property Fecha() As Date
+    Public Property Fecha() As String
         Get
             Return _fecha
         End Get
-        Set(value As Date)
+        Set(value As String)
             _fecha = value
         End Set
     End Property

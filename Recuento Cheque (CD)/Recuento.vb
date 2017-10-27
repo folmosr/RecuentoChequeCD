@@ -2,6 +2,7 @@
 Imports System.Collections.Specialized
 Imports System.Configuration
 Imports System.Deployment.Application
+Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Security.Principal
 Imports System.Text
@@ -161,6 +162,7 @@ Public Class Recuento
         If (ActualizaCheque()) Then
             If (UploadFile()) Then
                 Db = New DataAccesss()
+                'Db.RollBack()
                 resp = Db.Process(Modulo.ListaCheques.ConvertToDataTable())
                 If (Not resp) Then
                     Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
@@ -189,6 +191,68 @@ Public Class Recuento
             SetMaximunToProgressBar()
         End If
     End Sub
+
+    Private Sub CargarDataProcesada()
+        Dim Db As DataAccesss = New DataAccesss()
+        Dim dt As DataTable = Db.Load()
+        Modulo.ListaCheques = New List(Of Cheque)
+        'ConfigurationManager.AppSettings.Item("machine")
+        Modulo.PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
+        Modulo.PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
+
+        Dim file_name_front = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+        Dim file_name_back = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+        'Dim fcImage As Bitmap
+        'Dim bcImage As Bitmap
+        Dim cmc7 As String
+        If (dt.Rows.Count > 0) Then
+            'Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
+            For Each dr In dt.Rows
+                cmc7 = (dr("NroCheque").ToString() & dr("CodBanco").ToString() & dr("CodPlza").ToString() & dr("CtaCorriente").ToString())
+                If (IO.File.Exists(file_name_front & cmc7 & ".jpeg") And IO.File.Exists(file_name_back & cmc7 & ".jpeg")) Then
+                    Modulo.ListaCheques.Add(New Cheque With {
+                                        .Fecha = dr("Fecha").ToString(),
+                                        .NroCheque = dr("NroCheque").ToString(),
+                                        .Monto = dr("Monto").ToString(),
+                                        .CodBanco = dr("CodBanco").ToString(),
+                                        .CodPlza = dr("CodPlza").ToString(),
+                                        .CtaCorriente = dr("CtaCorriente").ToString(),
+                                        .Id_Recuento_Contenedor = dr("Id_Recuento_Contenedor").ToString(),
+                                        .Tipo_Recuento = dr("Tipo_Recuento").ToString(),
+                                        .Estado = 2,
+                                        .IniProceso = dr("IniProceso").ToString(),
+                                        .FinProceso = dr("FinProceso").ToString(),
+                                        .ImagenABitmap = LoadChequeImage(file_name_front & cmc7 & ".jpeg", New System.IO.MemoryStream),
+                                        .ImagenRBitmap = LoadChequeImage(file_name_back & cmc7 & ".jpeg", New System.IO.MemoryStream),
+                                        .Micr = cmc7
+                     })
+
+                Else
+                    Modulo.ListaCheques.Add(New Cheque With {
+                        .Fecha = dr("Fecha").ToString(),
+                        .NroCheque = dr("NroCheque").ToString(),
+                        .Monto = dr("Monto").ToString(),
+                        .CodBanco = dr("CodBanco").ToString(),
+                        .CodPlza = dr("CodPlza").ToString(),
+                        .CtaCorriente = dr("CtaCorriente").ToString(),
+                        .Id_Recuento_Contenedor = dr("Id_Recuento_Contenedor").ToString(),
+                        .Tipo_Recuento = dr("Tipo_Recuento").ToString(),
+                        .Estado = 2,
+                        .IniProceso = dr("IniProceso").ToString(),
+                         .FinProceso = dr("FinProceso").ToString(),
+                         .Micr = cmc7
+                        })
+                End If
+            Next
+        End If
+    End Sub
+
+    Private Function LoadChequeImage(path As String, ms As System.IO.MemoryStream) As Bitmap
+        Dim myJpgImage As Image = Image.FromFile(path)
+        myJpgImage.Save(ms, ImageFormat.Bmp)
+        myJpgImage.Dispose()
+        Return Image.FromStream(ms)
+    End Function
 
     Private Sub DesbloqueaDetalle()
         TxtMonto.Enabled = True
@@ -771,30 +835,35 @@ Public Class Recuento
     End Function
 
     Private Sub GetQueryStringParameters()
-        Dim NameValueTable As New NameValueCollection()
-        Dim values() As String
-        If (ApplicationDeployment.IsNetworkDeployed) Then
-            Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
-            If (qString IsNot Nothing) Then
-                NameValueTable = HttpUtility.ParseQueryString(qString)
-                For Each key In NameValueTable.Keys
-                    values = NameValueTable.GetValues(key)
-                    For Each value As String In values
-                        If (key = "id_recuento_contenedor") Then
-                            Modulo.Id_Recuento_Contenedor = value
-                        ElseIf (key = "cliente") Then
-                            Modulo.Cliente = value
-                        ElseIf (key = "local") Then
-                            Modulo.Sucursal = value
-                        ElseIf (key = "tipo_recuento") Then
-                            Modulo.Tipo_Recuento = value
-                        Else
-                            Modulo.Id_Recuento = value
-                        End If
-                    Next value
-                Next key
-            End If
-        End If
+        'Dim NameValueTable As New NameValueCollection()
+        'Dim values() As String
+        'If (ApplicationDeployment.IsNetworkDeployed) Then
+        '    Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
+        '    If (qString IsNot Nothing) Then
+        '        NameValueTable = HttpUtility.ParseQueryString(qString)
+        '        For Each key In NameValueTable.Keys
+        '            values = NameValueTable.GetValues(key)
+        '            For Each value As String In values
+        '                If (key = "id_recuento_contenedor") Then
+        '                    Modulo.Id_Recuento_Contenedor = value
+        '                ElseIf (key = "cliente") Then
+        '                    Modulo.Cliente = value
+        '                ElseIf (key = "local") Then
+        '                    Modulo.Sucursal = value
+        '                ElseIf (key = "tipo_recuento") Then
+        '                    Modulo.Tipo_Recuento = value
+        '                Else
+        '                    Modulo.Id_Recuento = value
+        '                End If
+        '            Next value
+        '        Next key
+        '    End If
+        'End If
+        Modulo.Id_Recuento_Contenedor = "255338"
+        Modulo.Id_Recuento = "168"
+        Modulo.Cliente = "REGISTRO DE ESTANCO"
+        Modulo.Sucursal = "REGISTRO DE ESTANCO"
+        Modulo.Tipo_Recuento = "1"
     End Sub
 
     Private Function Inicializador() As Boolean
@@ -830,7 +899,6 @@ Public Class Recuento
                 ee = ee.Substring(0, ee.IndexOf(Chr(0)))
                 SN = SN.Substring(0, SN.IndexOf(Chr(0)))
                 Me.Text = "DCC - AMM Demo >>>" + ee.Trim() + " (" + SN + ")"
-                Modulo.ListaCheques = New List(Of Cheque)
             Else
                 Reintento = MessageBox.Show("No se encontró digitalizador !, Desea reintentar ?", "Inicialización", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             End If
@@ -887,6 +955,19 @@ Public Class Recuento
         System.Threading.Thread.Sleep(2000)
     End Sub
 
+    Private Sub Recuento_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        Dim count As Int32 = Modulo.ListaCheques.Where(Function(x) x.Estado = 0).Count()
+        Dim reintento As MsgBoxResult
+        If (count > 0) Then
+            reintento = MessageBox.Show("Existen datos sin ser procesador, al cerrar la aplicación estos datos se perderán ¿Está usted de acuerdo?", "Mensaje", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            If (reintento = MsgBoxResult.Yes) Then
+                e.Cancel = False
+            Else
+                e.Cancel = True
+            End If
+        End If
+    End Sub
+
     'Private _lista As List(Of Cheque)
     'Private _Modulo.Indice As Int16
     'Public Property Modulo.ListaCheques As List(Of Cheque)
@@ -910,14 +991,18 @@ Public Class Recuento
         SetTootlTips()
         ReiniciaControlesDetalle()
         BloqueaDetalle()
+        CargarDataProcesada()
         If (Inicializador()) Then
-            LimpiaContenedorDeImagenes()
-            DigiNormal(999)
-            MostrarPrimerChequeEnLista()
-            SetMaximunToProgressBar()
+            If (Modulo.ListaCheques.Count = 0) Then
+                LimpiaContenedorDeImagenes()
+                DigiNormal(999)
+            Else
+                ActualizaTotal()
+            End If
         End If
+        MostrarPrimerChequeEnLista()
+        SetMaximunToProgressBar()
     End Sub
-
     Private Sub ReiniciaControlesDetalle()
         TxtMonto.Text = 0
         TxtTotal.Text = "0"
@@ -1040,30 +1125,32 @@ Public Class Recuento
             End If
         End If
     End Sub
+    Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
+        TxtMonto.Text = Int32.Parse(TxtMonto.Text.Replace(".", Nothing)).ToString("N0")
+    End Sub
+
     Private Function UploadFile() As Boolean
         Try
-            Dim file_name_front = ConfigurationManager.AppSettings.Item("machine") & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-            Dim file_name_back = ConfigurationManager.AppSettings.Item("machine") & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
-            Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
-            If Not IO.Directory.Exists(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
-                IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
-                'Else
-                '    IO.Directory.Delete(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
-                '    IO.Directory.CreateDirectory(ConfigurationManager.AppSettings.Item("machine") & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+            Dim file_name_front = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+            ' Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
+            If Not IO.Directory.Exists(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
+                IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+            Else
+                IO.Directory.Delete(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
+                IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
                 item.ImagenABitmap.Save(file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
                 item.ImagenRBitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
                 ProgressBar1.Increment(1)
+                item.Estado = 1
             Next
             Return True
         Catch e As Exception
             Return False
         End Try
     End Function
-    Private Sub TxtMonto_Leave(sender As Object, e As EventArgs) Handles TxtMonto.Leave
-        TxtMonto.Text = Int32.Parse(TxtMonto.Text.Replace(".", Nothing)).ToString("N0")
-    End Sub
 
 #End Region
 

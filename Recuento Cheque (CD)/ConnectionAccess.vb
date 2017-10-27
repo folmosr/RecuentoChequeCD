@@ -10,6 +10,11 @@ Public Class ConnectionAccess
         End Get
     End Property
 
+    ReadOnly Property ConnectionStringForCAD() As String
+        Get
+            Return ConfigurationManager.ConnectionStrings("CADConString").ConnectionString
+        End Get
+    End Property
 #End Region 'Properties
 
 End Class
