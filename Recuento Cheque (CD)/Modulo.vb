@@ -2,13 +2,11 @@
 
 Module Modulo
 
-#Region "Fields"
-
     Public AGC As Integer
     Public BACKSPACE As Int16 = 8
-    Public ENTER As Int16 = 13
     Public BatchSort As Double
     Public Ciclo As Integer
+    Public Cliente As String
     Public CX30 As Boolean
     Public DCCEndosoA As Boolean
     Public DCCEndosoF As String
@@ -20,16 +18,19 @@ Module Modulo
     Public DCCEndosoY As String
     Public DECIMAL_POINT As Int16 = 44
     Public DocsMin As Int32
+    Public Endoso_Fnt As String
+    Public Endoso_Hgh As String
+    Public Endoso_Pos As String
+    Public Endoso_Sec As String
     Public EndosoBmpI As Boolean
     Public EndosoFont As Boolean
     Public EndosoReal As Boolean
     Public EndosoTbis As String
     Public EndosoText As String
-    Public Endoso_Fnt As String
-    Public Endoso_Hgh As String
-    Public Endoso_Pos As String
-    Public Endoso_Sec As String
+    Public ENTER As Int16 = 13
     Public Franqueo As Integer
+    Public Id_Recuento As String
+    Public Id_Recuento_Contenedor As String
     Public ImagenActual As String
     Public Indice As Int16
     Public IQA1 As Boolean
@@ -64,21 +65,19 @@ Module Modulo
     Public Sort3 As Boolean
     Public SortEnabled As Boolean
     Public SSort As Boolean
+    Public Sucursal As String
     Public THOUNSAND_POINT As Int16 = 46
     Public timertics As Int32
-    Public TipoDeProceso As Integer
+    ''' <summary>
+    ''' Indica que tipo de proceso se lleva a cabo
+    ''' 0 es un proceso de creacion 
+    ''' 1 proceso de edicion
+    ''' </summary>
+    Public Tipo_Proceso As Int16 = 0
+
+    Public Tipo_Recuento As String
     Public TS240 As Boolean
     Public ZERO As Int16 = 48
-    Public Id_Recuento_Contenedor As String
-    Public Id_Recuento As String
-    Public Cliente As String
-    Public Sucursal As String
-    Public Tipo_Recuento As String
-
-#End Region 'Fields
-
-#Region "Methods"
-
     <System.Runtime.CompilerServices.Extension>
     Public Function ConvertToDataTable(Of T)(ByVal list As IList(Of T)) As DataTable
         Dim td As New DataTable
@@ -101,7 +100,5 @@ Module Modulo
 
         Return td
     End Function
-
-#End Region 'Methods
 
 End Module

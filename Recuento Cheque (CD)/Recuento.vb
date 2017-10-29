@@ -98,7 +98,14 @@ Public Class Recuento
     '    End If
     'End Sub
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
-        Modulo.ListaCheques.RemoveAt(Indice)
+        If (Modulo.Tipo_Proceso = 1) Then
+            Dim Db As DataAccesss = New DataAccesss()
+            Dim item As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
+            Dim tmpLista As List(Of Cheque) = New List(Of Cheque)()
+            tmpLista.Add(item)
+            Db.RollBack(tmpLista.ConvertToDataTable())
+        End If
+        Modulo.ListaCheques.RemoveAt(Modulo.Indice)
         ReiniciaControlesDetalle()
         Modulo.Indice = IIf((Modulo.Indice - 1) < 0, 0, (Modulo.Indice - 1))
         If ((Modulo.Indice = 0) And (Modulo.Indice = ListaCheques.Count)) Then
@@ -150,33 +157,42 @@ Public Class Recuento
     End Sub
 
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
-        Dim Reintento As MsgBoxResult
-        Dim resp As Boolean
-        Dim Db As DataAccesss
-        BloqueaDetalle()
-        BtnRestart.Enabled = False
-        BtnExpulsar.Enabled = False
-        ProgressBar1.Enabled = True
-        ProgressBar1.UseWaitCursor = True
-        SetFinProceso()
-        If (ActualizaCheque()) Then
-            If (UploadFile()) Then
-                Db = New DataAccesss()
-                'Db.RollBack()
-                resp = Db.Process(Modulo.ListaCheques.ConvertToDataTable())
-                If (Not resp) Then
-                    Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                    ProgressBar1.Value = 0
-                    Application.Exit()
+        If (Modulo.ListaCheques.Count > 0) Then
+            Dim Reintento As MsgBoxResult
+            Dim resp As Boolean
+            Dim Db As DataAccesss
+            BloqueaDetalle()
+            BtnRestart.Enabled = False
+            BtnExpulsar.Enabled = False
+            ProgressBar1.Enabled = True
+            ProgressBar1.UseWaitCursor = True
+            If (Modulo.Tipo_Proceso = 0) Then
+                SetFinProceso()
+            End If
+            If (ActualizaCheque()) Then
+                If (UploadFile()) Then
+                    Dim dt As DataTable = Modulo.ListaCheques.ConvertToDataTable()
+                    Db = New DataAccesss()
+                    If (Modulo.Tipo_Proceso = 1) Then
+                        Db.RollBack(dt)
+                    End If
+                    resp = Db.Process(dt)
+                    If (Not resp) Then
+                        Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                        ProgressBar1.Value = 0
+                        Application.Exit()
+                    Else
+                        ProgressBar1.Increment(1)
+                        MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                        Application.Exit()
+                    End If
                 Else
-                    ProgressBar1.Increment(1)
-                    MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                    MessageBox.Show("Imposible almacenar las imagenes digitalizadas", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                     Application.Exit()
                 End If
-            Else
-                MessageBox.Show("Imposible almacenar las imagenes digitalizadas", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                Application.Exit()
             End If
+        Else
+            MessageBox.Show("No hay documentos que procesar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
         End If
     End Sub
 
@@ -220,8 +236,8 @@ Public Class Recuento
                                         .Id_Recuento_Contenedor = dr("Id_Recuento_Contenedor").ToString(),
                                         .Tipo_Recuento = dr("Tipo_Recuento").ToString(),
                                         .Estado = 2,
-                                        .IniProceso = dr("IniProceso").ToString(),
-                                        .FinProceso = dr("FinProceso").ToString(),
+                                        .IniProceso = ToDatetime(dr("IniProceso").ToString()),
+                                        .FinProceso = ToDatetime(dr("FinProceso").ToString()),
                                         .ImagenABitmap = LoadChequeImage(file_name_front & cmc7 & ".jpeg", New System.IO.MemoryStream),
                                         .ImagenRBitmap = LoadChequeImage(file_name_back & cmc7 & ".jpeg", New System.IO.MemoryStream),
                                         .Micr = cmc7
@@ -246,13 +262,6 @@ Public Class Recuento
             Next
         End If
     End Sub
-
-    Private Function LoadChequeImage(path As String, ms As System.IO.MemoryStream) As Bitmap
-        Dim myJpgImage As Image = Image.FromFile(path)
-        myJpgImage.Save(ms, ImageFormat.Bmp)
-        myJpgImage.Dispose()
-        Return Image.FromStream(ms)
-    End Function
 
     Private Sub DesbloqueaDetalle()
         TxtMonto.Enabled = True
@@ -930,6 +939,13 @@ Public Class Recuento
         Next
     End Sub
 
+    Private Function LoadChequeImage(path As String, ms As System.IO.MemoryStream) As Bitmap
+        Dim myJpgImage As Image = Image.FromFile(path)
+        myJpgImage.Save(ms, ImageFormat.Bmp)
+        myJpgImage.Dispose()
+        Return Image.FromStream(ms)
+    End Function
+
     Private Sub MostrarPrimerChequeEnLista()
         If (Modulo.ListaCheques.Count > 0) Then
             Dim fCheque As Cheque = Modulo.ListaCheques.First()
@@ -994,15 +1010,17 @@ Public Class Recuento
         CargarDataProcesada()
         If (Inicializador()) Then
             If (Modulo.ListaCheques.Count = 0) Then
-                LimpiaContenedorDeImagenes()
+                LimpiaContenedorDeImagenes() 'revisar por ahora lo podemos dejar aqui (puede ir en cualquier lugar) 
                 DigiNormal(999)
             Else
+                Modulo.Tipo_Proceso = 1
                 ActualizaTotal()
             End If
         End If
         MostrarPrimerChequeEnLista()
         SetMaximunToProgressBar()
     End Sub
+
     Private Sub ReiniciaControlesDetalle()
         TxtMonto.Text = 0
         TxtTotal.Text = "0"
@@ -1066,9 +1084,11 @@ Public Class Recuento
             item.FinProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
         Next
     End Sub
+
     Private Sub SetMaximunToProgressBar()
         ProgressBar1.Maximum = ListaCheques.Count
     End Sub
+
     Private Sub SetTootlTips()
         ToolTip1.SetToolTip(BtnFirst, "Ir al primer cheque")
         ToolTip2.SetToolTip(BtnNext, "Ir al siguiente cheque")
@@ -1111,6 +1131,10 @@ Public Class Recuento
         Return (numero)
     End Function
 
+    Private Function ToDatetime(ByVal datestamp As String) As String
+        Dim parse As DateTime = DateTime.Parse(datestamp)
+        Return parse.ToString("yyyy-MM-dd HH:mm:ss")
+    End Function
     Private Sub TxtMonto_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles TxtMonto.KeyPress
         Dim keyvalue As Int32 = Asc(e.KeyChar)
         If ((keyvalue = Modulo.BACKSPACE) Or (((keyvalue >= Modulo.ZERO) And (keyvalue <= Modulo.NINE)) Or (keyvalue = Modulo.DECIMAL_POINT) Or (keyvalue = Modulo.THOUNSAND_POINT))) Then
@@ -1136,15 +1160,15 @@ Public Class Recuento
             ' Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
             If Not IO.Directory.Exists(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
                 IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
-            Else
-                IO.Directory.Delete(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
-                IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+                'Else
+                '    IO.Directory.Delete(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
+                '    IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
                 item.ImagenABitmap.Save(file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
                 item.ImagenRBitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
                 ProgressBar1.Increment(1)
-                item.Estado = 1
+                item.Estado = IIf((item.Estado = 2), 2, 1)
             Next
             Return True
         Catch e As Exception

@@ -8,7 +8,7 @@ Public Class DataAccesss
     Public Function Load() As DataTable
         Dim con As New SqlConnection
         Dim cmd As New SqlCommand
-        Dim dt As DataTable
+        Dim dt As DataTable = New DataTable()
         Try
 
             con.ConnectionString = ConnectionString()
@@ -21,7 +21,6 @@ Public Class DataAccesss
             cmd.Parameters.AddWithValue("@Id_Recuento_Contenedor", Modulo.Id_Recuento_Contenedor)
             Dim reader As SqlDataReader = cmd.ExecuteReader()
             If reader.HasRows Then
-                dt = New DataTable
                 dt.Load(reader)
             End If
             reader.Close()
@@ -61,6 +60,49 @@ Public Class DataAccesss
         Return True
     End Function
 
+#End Region
+
+#Region "Internal Methods"
+
+    Friend Sub RollBack(ByVal dt As DataTable, Optional ByVal instancia As Int16 = 1, Optional ByVal salida As Boolean = False)
+        Dim con As New SqlConnection
+        Dim cmd As New SqlCommand
+        Dim paramDt As New DataTable
+        Try
+            paramDt = dt.Copy()
+            CleanDataTable(paramDt)
+            con.ConnectionString = IIf((instancia = 1), ConnectionStringForCAD(), ConnectionString())
+            con.Open()
+            cmd.Connection = con
+
+            cmd.CommandText = "sp_LimpiaDetalleDocumentos"
+            cmd.CommandType = CommandType.StoredProcedure
+            cmd.Parameters.AddWithValue("@LoadTable", paramDt)
+            cmd.ExecuteNonQuery()
+            If (salida) Then
+                Exit Sub
+            End If
+            RollBack(dt, 0, True)
+        Catch ex As Exception
+            Throw
+        Finally
+            con.Close()
+        End Try
+    End Sub
+
+#End Region
+
+#Region "Private Methods"
+
+    Private Function CleanDataTable(dt As DataTable) As DataTable
+        Dim columns As String = "Micr,ImagenRBitmap,ImagenABitmap,ImagenR,ImagenA,Estado"
+        Dim ColumnsArr() As String = columns.Split(",")
+        For Each col As String In ColumnsArr
+            dt.Columns.Remove(col)
+        Next
+        Return dt
+    End Function
+
     Private Sub ProcessCAD(cad As DataTable)
         Dim con As New SqlConnection
         Dim cmd As New SqlCommand
@@ -80,15 +122,6 @@ Public Class DataAccesss
             con.Close()
         End Try
     End Sub
-
-    Private Function CleanDataTable(dt As DataTable) As DataTable
-        Dim columns As String = "Micr,ImagenRBitmap,ImagenABitmap,ImagenR,ImagenA,Estado"
-        Dim ColumnsArr() As String = columns.Split(",")
-        For Each col As String In ColumnsArr
-            dt.Columns.Remove(col)
-        Next
-        Return dt
-    End Function
 
 #End Region
 

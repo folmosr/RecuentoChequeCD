@@ -36,10 +36,10 @@
         Me.ImagenA = GetBase64Code(imagenR)
         Me.ImagenABitmap = imagenA
         Me.ImagenRBitmap = imagenR
-        Me.Fecha = DateTime.Now.ToString("dd/MM/yyyy")
+        Me.Fecha = DateTime.Now.ToString("yyyy-MM-dd")
         Me.Id_Recuento_Contenedor = idRecuento
         Me.Tipo_Recuento = tipo
-        Me.Monto = 0
+        Me.Monto = IIf((Modulo.Tipo_Proceso = 0), 0, 2)
         Me.IniProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
 
     End Sub
@@ -82,6 +82,7 @@
     ''' Estado de la entidad
     ''' 0 sin procesar
     ''' 1 procesado
+    ''' 2 cargado (ya fue procesado) y listo para ser editado (depende del tipo de proceso)
     ''' </summary>
     ''' <returns></returns>
     Public Property Estado As Short
