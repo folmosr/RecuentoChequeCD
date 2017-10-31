@@ -84,25 +84,20 @@ Public Class Recuento
         Buscar.Show()
     End Sub
 
-    'Private Sub TxtMonto_LostFocus(sender As Object, e As EventArgs) Handles TxtMonto.LostFocus
-    '    If (TxtMonto.Text = 0) Then
-    '        MessageBox.Show("Se requiere Monto", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-    '        TxtMonto.Select()
-    '        Return
-    '    End If
-    '    Dim pattern As New Regex("^(?!0+\,00)(?=.{1,9}(\,|$))(?!0(?!\,))\d{1,3}(\.\d{3})*(\,\d+)?$")
-    '    If (Not pattern.IsMatch(TxtMonto.Text)) Then
-    '        MessageBox.Show("Monto Inválido", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-    '        TxtMonto.Select()
-    '        Return
-    '    End If
-    'End Sub
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         If (Modulo.Tipo_Proceso = 1) Then
+            Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
+            Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
             Dim Db As DataAccesss = New DataAccesss()
             Dim item As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
+            Dim cmc7 As String = item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente
             Dim tmpLista As List(Of Cheque) = New List(Of Cheque)()
             tmpLista.Add(item)
+            If (IO.File.Exists(file_name_front & cmc7 & ".jpeg") And IO.File.Exists(file_name_back & cmc7 & ".jpeg")) Then
+                IO.File.Delete(file_name_front & cmc7 & ".jpeg")
+                IO.File.Delete(file_name_back & cmc7 & ".jpeg")
+            End If
             Db.RollBack(tmpLista.ConvertToDataTable())
         End If
         Modulo.ListaCheques.RemoveAt(Modulo.Indice)
@@ -124,13 +119,6 @@ Public Class Recuento
         BtnExpulsar.Enabled = True
     End Sub
 
-    'Private Sub CalculaTotal()
-    '    Dim total As Single = 0
-    '    For Each objCheque As Cheque In Modulo.ListaCheques
-    '        total += objCheque.Monto
-    '    Next
-    '    TxtTotal.Text = total.ToString("#,#.00#;(#,#.00#)")
-    'End Sub
     Private Sub BtnFirst_Click(sender As Object, e As EventArgs) Handles BtnFirst.Click
         Modulo.Indice = 0
         SetDatosAControles()
@@ -139,7 +127,6 @@ Public Class Recuento
     Private Sub BtnGuardar_Click(sender As Object, e As EventArgs) Handles BtnGuardar.Click
         Dim len As Int32 = Modulo.ListaCheques.Count
         DigiNormal(999)
-        'Modulo.Indice = len
         SetDatosAControles()
         SetMaximunToProgressBar()
     End Sub
@@ -161,15 +148,15 @@ Public Class Recuento
             Dim Reintento As MsgBoxResult
             Dim resp As Boolean
             Dim Db As DataAccesss
-            BloqueaDetalle()
-            BtnRestart.Enabled = False
-            BtnExpulsar.Enabled = False
-            ProgressBar1.Enabled = True
             ProgressBar1.UseWaitCursor = True
             If (Modulo.Tipo_Proceso = 0) Then
                 SetFinProceso()
             End If
             If (ActualizaCheque()) Then
+                BloqueaDetalle()
+                BtnRestart.Enabled = False
+                BtnExpulsar.Enabled = False
+                ProgressBar1.Enabled = True
                 If (UploadFile()) Then
                     Dim dt As DataTable = Modulo.ListaCheques.ConvertToDataTable()
                     Db = New DataAccesss()
@@ -178,9 +165,8 @@ Public Class Recuento
                     End If
                     resp = Db.Process(dt)
                     If (Not resp) Then
-                        Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                        Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                         ProgressBar1.Value = 0
-                        Application.Exit()
                     Else
                         ProgressBar1.Increment(1)
                         MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
@@ -188,7 +174,6 @@ Public Class Recuento
                     End If
                 Else
                     MessageBox.Show("Imposible almacenar las imagenes digitalizadas", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                    Application.Exit()
                 End If
             End If
         Else
@@ -211,18 +196,12 @@ Public Class Recuento
     Private Sub CargarDataProcesada()
         Dim Db As DataAccesss = New DataAccesss()
         Dim dt As DataTable = Db.Load()
+        Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
         Modulo.ListaCheques = New List(Of Cheque)
-        'ConfigurationManager.AppSettings.Item("machine")
-        Modulo.PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
-        Modulo.PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
-
-        Dim file_name_front = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-        Dim file_name_back = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
-        'Dim fcImage As Bitmap
-        'Dim bcImage As Bitmap
+        Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+        Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
         Dim cmc7 As String
         If (dt.Rows.Count > 0) Then
-            'Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
             For Each dr In dt.Rows
                 cmc7 = (dr("NroCheque").ToString() & dr("CodBanco").ToString() & dr("CodPlza").ToString() & dr("CtaCorriente").ToString())
                 If (IO.File.Exists(file_name_front & cmc7 & ".jpeg") And IO.File.Exists(file_name_back & cmc7 & ".jpeg")) Then
@@ -274,8 +253,6 @@ Public Class Recuento
         BtnGuardar.Enabled = True
         BtnEliminar.Enabled = True
         BtnProcesar.Enabled = True
-        'BtnRestart.Enabled = True
-        'BtnExpulsar.Enabled = True
         BtnBuscar.Enabled = True
     End Sub
 
@@ -290,15 +267,12 @@ Public Class Recuento
         Dim MICROCR As String = Space(255)
         Dim ConfOCR As String = Space(255)
         Dim MICR As String = Space(255)
-        'Dim EndosoSec As String = ""
-        'Dim Tiempo1 As DateTime
-        'Dim Tiempo2 As DateTime
 
         Dim Ret As MsgBoxResult
 
         Dim ImgA As String = ""
         Dim ImgR As String = ""
-        'Dim Banderas As Integer
+
         Dim DispImagenA As Bitmap
         Dim DispImagenR As Bitmap
 
@@ -309,25 +283,15 @@ Public Class Recuento
 
         ' Batch
         ' =====
-        'If (CBBatch.Checked) Then
         Res = BUICSetParam(160, 1)
-        'Else
-        '    Res = BUICSetParam(160, 0)
-        'End If
 
         ' Resolución
         ' ==========
         BUICSetParam(CFG_IMAGE_RESOLUTION, 0)
-        'If (RB100.Checked) Then Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 0)
-        'If (RB200.Checked) Then Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 1)
-        'If (RB300.Checked) Then Res = BUICSetParam(CFG_IMAGE_RESOLUTION, 4)
 
         ' Código de Banda
         ' ===============
         BUICSetParam(BPARAM_MAGNTYPE, 0)
-        'If (RBCMC7.Checked) Then Res = BUICSetParam(BPARAM_MAGNTYPE, 0)
-        'If (RBE13B.Checked) Then Res = BUICSetParam(BPARAM_MAGNTYPE, 1)
-        'If (RBEOCR.Checked) Then Res = BUICSetParam(BPARAM_MAGNTYPE, 1)
 
         ' 8 Bits 256 Tonos
         ' ================
@@ -343,8 +307,7 @@ Public Class Recuento
 
         ' ThresHold
         ' =========
-        'Res = BUICSetParam(BPARAM_FRONTTHRESHOLD, SBAThres.Value)
-        'Res = BUICSetParam(BPARAM_REARTHRESHOLD, SBRThres.Value)
+
         Res = BUICSetParam(BPARAM_FRONTTHRESHOLD, 9)
         Res = BUICSetParam(BPARAM_REARTHRESHOLD, 9)
 
@@ -354,80 +317,19 @@ Public Class Recuento
 
         ' Color
         ' =====
-        'If (RBColor.Checked) Then
         Res = BUICSetParam(119, 0)
-        ' Else
-        ' Res = BUICSetParam(119, 0)
-        ' End If
 
         ' CX 30 Salida
         ' ============
-        'If (CX30 And DocNum > 1) Then
-        ' Res = BUICSetParam(191, 0)
-        'Else
         Res = BUICSetParam(191, 1)
-        ' End If
 
         ' SORT
         ' ====
-        'If (SSort And SortEnabled And Not CBBatch.Checked) Then
-        '    Res = BUICSetParam(CFG_DEV_SORTER, 1)
-        '    Res = BUICSetParam(TBPARAM_SORTER_INPUT, 0)
-        'Else
-        '    If (SSort And SortEnabled And CBBatch.Checked) Then
-        '        Res = BUICSetParam(CFG_DEV_SORTER, 1)
-        '        Res = BUICSetParam(TBPARAM_SORTER_INPUT, 1)
-        '        Dim Func As MyFunc
-        '        Func = New MyFunc(AddressOf MICRCallBack)
-        '        Res = funcSetUpCallBack(&H100000, Func)
-        '    Else
         Res = BUICSetParam(CFG_DEV_SORTER, 0)
-        '    End If
-        'End If
 
         ' DCC Franqueo
         '' ============
-        'If (CX30 Or TS240) Then
         Res = BUICSetParam(196, Franqueo)
-        'Else
-        '    Res = BUICSetParam(196, 0)
-        'End If
-
-        ' Endoso Virtual
-        ' ==============
-        'Res = BUICSetParam(170, 1)
-
-        ' Endoso Real
-        ' ===========
-        'If (EndosoReal) Then
-        '    If (String.Compare(Endoso_Sec, "1") = 0) Then
-        '        If (RBBMP.Checked) Then EndosoSec = SiguienteImagen(3).ToString("00000")
-        '        If (RBTiff.Checked) Then EndosoSec = SiguienteImagen(1).ToString("00000")
-        '        If (RBJPEG.Checked) Then EndosoSec = SiguienteImagen(2).ToString("00000")
-        '        If (RBColor.Checked) Then EndosoSec = SiguienteImagen(2).ToString("00000")
-        '    Else
-        '        EndosoSec = ""
-        '    End If
-        '    If (EndosoBmpI) Then
-        '        Res = BUICSetParam(CFG_DEV_PRINTER, 1)
-        '        CheckEndorsementStart(ScannerType, 1000)
-        '        CheckEndorsementText(ScannerType, Convert.ToInt32(Endoso_Hgh), 0, 1, 1, 0, Endoso_Fnt, EndosoText + " " + EndosoSec)
-        '        CheckEndorsementEnd(ScannerType, PathInicio + "Endoso.Bmp")
-        '        Res = funcTS400SetPrint(35, Convert.ToInt32(Endoso_Pos), PathInicio + "Endoso.Bmp")
-        '    End If
-        '    If (EndosoFont) Then
-        '        Res = BUICSetParam(CFG_DEV_PRINTER, 1)
-        '        If (ScannerType = 200) Then
-        '            FontFile = PathInicio + "Ts200_IJAsciiFont.bin"
-        '        Else
-        '            FontFile = PathInicio + "Pc2424.fnt"
-        '        End If
-        '        Res = funcTS400SetLoadFont(0, 0, FontFile)
-        '        Res = funcTS400SetPrint(34, Convert.ToInt32(Endoso_Pos), EndosoText + " " + EndosoSec)
-        '    End If
-        'Else
-        '    Res = BUICSetParam(CFG_DEV_PRINTER, 0)
-        'End If
 
         If (Res >= 0) Then
             For Ciclo = 1 To DocNum
@@ -437,75 +339,6 @@ Public Class Recuento
                 MICROCR = Space(255)
                 ConfOCR = Space(255)
                 MICR = Space(255)
-
-                'Tiempo1 = DateTime.Now.AddSeconds(5)
-                'If (CX30 And DocNum > 1) Then
-                '    Do
-                '        Res = BUICStatus()
-                '        Tiempo2 = DateTime.Now()
-                '        Application.DoEvents()
-                '    Loop Until (Res = 1 Or Tiempo1 < Tiempo2)
-                'End If
-
-                'If (RBTiff.Checked) Then
-                '    SiguienteI = SiguienteImagen(1)
-                '    ImagenActual = "A" + SiguienteI.ToString("00000") + ".Tif"
-                '    ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Tif"
-                '    ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Tif"
-                '    Res = BUICScan(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen)
-                '    If (Res >= 0) Then
-                '        MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
-                '        MICR = MICR.Replace("@", "?")
-                '        IndicesTif.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
-                '    Else
-                '        ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Tif"
-                '    End If
-                '    If (Res >= 0 And RBEOCR.Checked) Then
-                '        ResOCR = FindE13BMicr(ImgA, 1, 0, MICROCR, ConfOCR)
-                '        If (ResOCR = 0) Then
-                '            MICROCR = MICROCR.Substring(0, MICROCR.IndexOf(Chr(0)))
-                '            MICROCR = MICROCR.Replace("@", "?")
-                '        Else
-                '            MICROCR = "---"
-                '        End If
-                '    Else
-                '        MICROCR = "---"
-                '    End If
-                'End If
-
-                'If (RBJPEG.Checked) Then
-                'SiguienteI = SiguienteImagen(2)
-                'ImagenActual = "A" + SiguienteI.ToString("00000") + ".Tif"
-                'ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Tif" '".Jpg"
-                'ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Tif"
-                'Res = BUICScanGray(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen, 4)
-                'If (Res >= 0) Then
-                '    MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
-                '    MICR = MICR.Replace("@", "?")
-                '    IndicesJpg.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
-                'Else
-                '    ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Tif"
-                'End If
-                '    MICROCR = "---"
-                'End If
-
-                'If (RBBMP.Checked) Then
-                '    SiguienteI = SiguienteImagen(3)
-                '    ImagenActual = "A" + SiguienteI.ToString("00000") + ".Bmp"
-                '    ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Bmp"
-                '    ImgR = PathImagenes + "R" + SiguienteI.ToString("00000") + ".Bmp"
-                '    Res = BUICScanGray(7, ImgA, ImgALen, ImgR, ImgRLen, MICR, MICRLen, 3)
-                '    If (Res >= 0) Then
-                '        MICR = MICR.Substring(0, MICR.IndexOf(Chr(0)))
-                '        MICR = MICR.Replace("@", "?")
-                '        IndicesBmp.WriteLine(MICR.PadRight(50) + ImgA + " " + ImgR)
-                '    Else
-                '        ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".Bmp"
-                '    End If
-                '    MICROCR = "---"
-                'End If
-
-                'If (RBColor.Checked) Then
                 SiguienteI = SiguienteImagen(2)
                 ImagenActual = "A" + SiguienteI.ToString("00000") + ".Jpg"
                 ImgA = PathImagenes + "A" + SiguienteI.ToString("00000") + ".Jpg"
@@ -518,64 +351,26 @@ Public Class Recuento
                 Else
                     ImagenActual = "A" + (SiguienteI - 1).ToString("00000") + ".JPG"
                 End If
-                'MICROCR = "---"
-                'End If
 
                 If (Res >= 0) Then
-                    'If (SSort And SortEnabled And Not CBBatch.Checked) Then
-                    '    Dim ImgSrt As Integer
-                    '    If (Sort1) Then
-                    '        ImgSrt = Convert.ToInt32(ImagenActual.Substring(1, 5))
-                    '        If (ImgSrt = Math.Floor(ImgSrt / 2) * 2) Then
-                    '            TS400SetPocket(0)
-                    '        Else
-                    '            TS400SetPocket(1)
-                    '        End If
-                    '    End If
-                    '    If (Sort2) Then
-                    '        ImgSrt = Convert.ToInt32(ImagenActual.Substring(1, 5))
-                    '        If (ImgSrt = Math.Floor(ImgSrt / 4) * 4) Then
-                    '            TS400SetPocket(1)
-                    '        Else
-                    '            TS400SetPocket(0)
-                    '        End If
-                    '    End If
-                    '    If (Sort3) Then
-                    '        ImgSrt = MICR.IndexOf("?")
-                    '        If (ImgSrt >= 0) Then
-                    '            TS400SetPocket(1)
-                    '        Else
-                    '            TS400SetPocket(0)
-                    '        End If
-                    '    End If
-                    'End If
 
                     Dim FileA As FileStream = New FileStream(ImgA, FileMode.Open)
                     Dim FileR As FileStream = New FileStream(ImgR, FileMode.Open)
-                    'Tamano = FileA.Length + FileR.Length
-                    'FileA.Close()
-                    'FileR.Close()
-                    DocsMin = DocsMin + 1
-                    'TL1.Text = "Imagen: " + Path.GetFileName(ImgA).Substring(1, 5) + " : [ " + Tamano + " Bytes (2 Lados) ]"
-                    'TL2.Text = "MICR: " + MICR
-                    'TL3.Text = "OCR:" + MICROCR.Trim()
-                    'StatusStrip1.Refresh()
 
-                    ' Dim FileImage As FileStream = New FileStream(ImgA, FileMode.Open)
+                    DocsMin = DocsMin + 1
+
                     DispImagenA = New Bitmap(Image.FromStream(FileA))
                     DispImagenR = New Bitmap(Image.FromStream(FileR))
                     Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR, Convert.ToInt32(Modulo.Id_Recuento_Contenedor), Modulo.Tipo_Recuento))
                     FrontPictureBox.Image = DispImagenA
                     BackPictureBox.Image = DispImagenR
-                    'LblChcSerial.Text = MICR
+
                     LblChcCount.Text = DocsMin
-                    'Imagen.Image = DispImagen
-                    'Imagen.Visible = True
+
                     FileA.Close()
                     FileR.Close()
                     flag = True
                 Else
-                    'Timer1.Enabled = False
                     If (Not flag) Then
                         Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                         If (Ret = MsgBoxResult.Retry) Then
@@ -587,12 +382,10 @@ Public Class Recuento
                     Exit For
                 End If
             Next Ciclo
-            'MemoryRelease(lngMemHwndFront)
-            'MemoryRelease(lngMemHwndBack)
+
             If (retry = 1) Then
                 Reintentar(IndicesTif, IndicesJpg, IndicesBmp)
-                'ElseIf (retry = 2) Then
-                '    Application.Exit()
+
             End If
         Else
             Ret = MessageBox.Show("Mensaje del digitalizador:" & vbCrLf & vbCrLf & Errores(Res), "Mensaje", MessageBoxButtons.RetryCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
@@ -610,9 +403,6 @@ Public Class Recuento
     Private Sub DtFecha_Enter(sender As Object, e As EventArgs) Handles DtFecha.Enter
         ActualizaCheque()
         ActualizaTotal()
-        'If (Modulo.Indice = (Modulo.ListaCheques.Count - 1)) Then
-        '    TxtTotal.Text = (Convert.ToSingle(TxtTotal.Text) + Convert.ToSingle(TxtMonto.Text)).ToString("#,#.00#;(#,#.00#)")
-        'End If
     End Sub
 
     Private Sub DtFecha_Keypress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles DtFecha.KeyPress
@@ -844,35 +634,30 @@ Public Class Recuento
     End Function
 
     Private Sub GetQueryStringParameters()
-        'Dim NameValueTable As New NameValueCollection()
-        'Dim values() As String
-        'If (ApplicationDeployment.IsNetworkDeployed) Then
-        '    Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
-        '    If (qString IsNot Nothing) Then
-        '        NameValueTable = HttpUtility.ParseQueryString(qString)
-        '        For Each key In NameValueTable.Keys
-        '            values = NameValueTable.GetValues(key)
-        '            For Each value As String In values
-        '                If (key = "id_recuento_contenedor") Then
-        '                    Modulo.Id_Recuento_Contenedor = value
-        '                ElseIf (key = "cliente") Then
-        '                    Modulo.Cliente = value
-        '                ElseIf (key = "local") Then
-        '                    Modulo.Sucursal = value
-        '                ElseIf (key = "tipo_recuento") Then
-        '                    Modulo.Tipo_Recuento = value
-        '                Else
-        '                    Modulo.Id_Recuento = value
-        '                End If
-        '            Next value
-        '        Next key
-        '    End If
-        'End If
-        Modulo.Id_Recuento_Contenedor = "255338"
-        Modulo.Id_Recuento = "168"
-        Modulo.Cliente = "REGISTRO DE ESTANCO"
-        Modulo.Sucursal = "REGISTRO DE ESTANCO"
-        Modulo.Tipo_Recuento = "1"
+        Dim NameValueTable As New NameValueCollection()
+        Dim values() As String
+        If (ApplicationDeployment.IsNetworkDeployed) Then
+            Dim qString As String = ApplicationDeployment.CurrentDeployment.ActivationUri.Query
+            If (qString IsNot Nothing) Then
+                NameValueTable = HttpUtility.ParseQueryString(qString)
+                For Each key In NameValueTable.Keys
+                    values = NameValueTable.GetValues(key)
+                    For Each value As String In values
+                        If (key = "id_recuento_contenedor") Then
+                            Modulo.Id_Recuento_Contenedor = value
+                        ElseIf (key = "cliente") Then
+                            Modulo.Cliente = value
+                        ElseIf (key = "local") Then
+                            Modulo.Sucursal = value
+                        ElseIf (key = "tipo_recuento") Then
+                            Modulo.Tipo_Recuento = value
+                        Else
+                            Modulo.Id_Recuento = value
+                        End If
+                    Next value
+                Next key
+            End If
+        End If
     End Sub
 
     Private Function Inicializador() As Boolean
@@ -882,8 +667,6 @@ Public Class Recuento
         Modulo.PathInicio = Path.GetDirectoryName(Application.ExecutablePath) + "\"
         Modulo.PathImagenes = Path.GetDirectoryName(PathInicio) + "\" + "Imagenes" + "\"
         If (Not Directory.Exists(PathImagenes)) Then Directory.CreateDirectory(PathImagenes)
-        'PathImagenesSucursal = Path.GetDirectoryName(PathInicio) + "\" + "ImagenesS" + "\"
-        ' If (Not Directory.Exists(PathImagenesSucursal)) Then Directory.CreateDirectory(PathImagenesSucursal)
         Me.Show()
         Application.DoEvents()
         Sleep(2000)
@@ -954,21 +737,15 @@ Public Class Recuento
         End If
     End Sub
 
-    Private Sub Open_Remote_Connection(ByVal strComputer As String, ByVal strUsername As String, ByVal strPassword As String)
-        '//====================================================================================
-        '//using NET USE to open a connection to the remote computer
-        '//with the specified credentials. if we dont do this first, File.Copy will fail
-        '//====================================================================================
-        Dim ProcessStartInfo As New System.Diagnostics.ProcessStartInfo
-        ProcessStartInfo.FileName = "net"
-        ProcessStartInfo.Arguments = "use \\" & strComputer & "\c$ /USER:" & strUsername & " " & strPassword
-        ProcessStartInfo.WindowStyle = ProcessWindowStyle.Hidden
-        System.Diagnostics.Process.Start(ProcessStartInfo)
-
-        '//============================================================================
-        '//wait 2 seconds to let the above command complete or the copy will still fail
-        '//============================================================================
-        System.Threading.Thread.Sleep(2000)
+    Private Sub OpenImagesDirectory()
+        Dim nr As New NETRESOURCE
+        Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
+        nr.dwType = Modulo.RESOURCETYPE_DISK
+        nr.lpRemoteName = root
+        If WNetAddConnection2(nr, ConfigurationManager.AppSettings.Item("pass").ToString(), ConfigurationManager.AppSettings.Item("user").ToString(), 0) <> NO_ERROR Then
+            MessageBox.Show("WNetAddConnection2 failed.", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1)
+            Application.Exit()
+        End If
     End Sub
 
     Private Sub Recuento_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -984,33 +761,16 @@ Public Class Recuento
         End If
     End Sub
 
-    'Private _lista As List(Of Cheque)
-    'Private _Modulo.Indice As Int16
-    'Public Property Modulo.ListaCheques As List(Of Cheque)
-    '    Get
-    '        Return _lista
-    '    End Get
-    '    Set(value As List(Of Cheque))
-    '        _lista = value
-    '    End Set
-    'End Property
-    'Public Property Modulo.Indice As Short
-    '    Get
-    '        Return Modulo.Indice
-    '    End Get
-    '    Set(value As Short)
-    '        _Modulo.Indice = value
-    '    End Set
-    'End Property
     Private Sub Recuento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GetQueryStringParameters()
+        OpenImagesDirectory()
         SetTootlTips()
         ReiniciaControlesDetalle()
         BloqueaDetalle()
         CargarDataProcesada()
         If (Inicializador()) Then
             If (Modulo.ListaCheques.Count = 0) Then
-                LimpiaContenedorDeImagenes() 'revisar por ahora lo podemos dejar aqui (puede ir en cualquier lugar) 
+                LimpiaContenedorDeImagenes()
                 DigiNormal(999)
             Else
                 Modulo.Tipo_Proceso = 1
@@ -1020,7 +780,6 @@ Public Class Recuento
         MostrarPrimerChequeEnLista()
         SetMaximunToProgressBar()
     End Sub
-
     Private Sub ReiniciaControlesDetalle()
         TxtMonto.Text = 0
         TxtTotal.Text = "0"
@@ -1037,6 +796,16 @@ Public Class Recuento
         indicesBmp.Close()
         DigiNormal(999)
         MostrarPrimerChequeEnLista()
+    End Sub
+
+    Private Sub SaveImage(imagenRBitmap As Bitmap, v As String)
+        Using memory As MemoryStream = New MemoryStream
+            Using fs As FileStream = New FileStream(v, FileMode.Create, FileAccess.ReadWrite)
+                imagenRBitmap.Save(memory, ImageFormat.Jpeg)
+                Dim bytes As Byte() = memory.ToArray()
+                fs.Write(bytes, 0, bytes.Length)
+            End Using
+        End Using
     End Sub
 
     Private Sub SetDatosAControles()
@@ -1155,21 +924,24 @@ Public Class Recuento
 
     Private Function UploadFile() As Boolean
         Try
-            Dim file_name_front = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-            Dim file_name_back = Modulo.PathImagenes & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
-            ' Open_Remote_Connection(ConfigurationManager.AppSettings.Item("machine"), ConfigurationManager.AppSettings.Item("user"), ConfigurationManager.AppSettings.Item("pass"))
-            If Not IO.Directory.Exists(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
-                IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
-                'Else
-                '    IO.Directory.Delete(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
-                '    IO.Directory.CreateDirectory(Modulo.PathImagenes & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+            Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
+            Dim file_name_front = root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+            If Not IO.Directory.Exists(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
+                IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+            Else
+                IO.Directory.Delete(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
+                IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
-                item.ImagenABitmap.Save(file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
-                item.ImagenRBitmap.Save(file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg", System.Drawing.Imaging.ImageFormat.Jpeg)
+                SaveImage(item.ImagenABitmap, file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg")
+                SaveImage(item.ImagenRBitmap, file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg")
                 ProgressBar1.Increment(1)
                 item.Estado = IIf((item.Estado = 2), 2, 1)
             Next
+            'If WNetCancelConnection2(root, 0, True) <> NO_ERROR Then
+            '    Return False
+            'End If
             Return True
         Catch e As Exception
             Return False

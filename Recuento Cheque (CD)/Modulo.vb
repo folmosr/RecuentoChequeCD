@@ -1,7 +1,25 @@
 ﻿Imports System.ComponentModel
+Imports System.Runtime.InteropServices
+
+<StructLayout(LayoutKind.Sequential)>
+Public Structure NETRESOURCE
+    Public dwScope As UInteger
+    Public dwType As UInteger
+    Public dwDisplayType As UInteger
+    Public dwUsage As UInteger
+    <MarshalAs(UnmanagedType.LPTStr)>
+    Public lpLocalName As String
+    <MarshalAs(UnmanagedType.LPTStr)>
+    Public lpRemoteName As String
+    <MarshalAs(UnmanagedType.LPTStr)>
+    Public lpComment As String
+    <MarshalAs(UnmanagedType.LPTStr)>
+    Public lpProvider As String
+End Structure
 
 Module Modulo
-
+    Public Const NO_ERROR As UInteger = 0
+    Public Const RESOURCETYPE_DISK As UInteger = 1
     Public AGC As Integer
     Public BACKSPACE As Int16 = 8
     Public BatchSort As Double
@@ -99,6 +117,14 @@ Module Modulo
         Next
 
         Return td
+    End Function
+
+    <DllImport("mpr.dll", CharSet:=CharSet.Auto)>
+    Public Function WNetAddConnection2(ByRef lpNetResource As NETRESOURCE, <[In](), MarshalAs(UnmanagedType.LPTStr)> ByVal lpPassword As String, <[In](), MarshalAs(UnmanagedType.LPTStr)> ByVal lpUserName As String, ByVal dwFlags As UInteger) As UInteger
+    End Function
+
+    <DllImport("mpr.dll", CharSet:=CharSet.Auto)>
+    Public Function WNetCancelConnection2(<[In](), MarshalAs(UnmanagedType.LPTStr)> ByVal lpName As String, ByVal dwFlags As UInteger, <MarshalAs(UnmanagedType.Bool)> ByVal fForce As Boolean) As UInteger
     End Function
 
 End Module

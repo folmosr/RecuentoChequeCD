@@ -19,6 +19,7 @@ Public Class DataAccesss
             cmd.CommandType = CommandType.StoredProcedure
             cmd.Parameters.AddWithValue("@Id_Recuento", Modulo.Id_Recuento)
             cmd.Parameters.AddWithValue("@Id_Recuento_Contenedor", Modulo.Id_Recuento_Contenedor)
+            cmd.Parameters.AddWithValue("@Tipo_Recuento", Modulo.Tipo_Recuento)
             Dim reader As SqlDataReader = cmd.ExecuteReader()
             If reader.HasRows Then
                 dt.Load(reader)
