@@ -1,4 +1,6 @@
-﻿Public Class Cheque
+﻿Imports System.Text.RegularExpressions
+
+Public Class Cheque
 
 #Region "Private Fields"
 
@@ -24,13 +26,12 @@
 #Region "Public Constructors"
 
     Public Sub New(ByVal micr As String, ByVal imagenA As Bitmap, ByVal imagenR As Bitmap, ByVal idRecuento As Int32, ByVal tipo As String)
-        Me.Micr = micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty)
-        If (Me.Micr.Length = 29) Then
-            Me.NroCheque = Me.Micr.Substring(0, 7)
-            Me.CodBanco = Me.Micr.Substring(8, 3)
-            Me.CodPlza = Me.Micr.Substring(11, 4)
-            Me.CtaCorriente = Me.Micr.Substring(15, 11)
-            Me.Micr = Me.Micr.Substring(0, 27)
+        Me.Micr = Regex.Replace(micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty), "\s", "")
+        If (Me.Micr.Length = 27) Then
+            Me.NroCheque = Me.Micr.Substring(0, 6)
+            Me.CodBanco = Me.Micr.Substring(7, 3)
+            Me.CodPlza = Me.Micr.Substring(10, 4)
+            Me.CtaCorriente = Me.Micr.Substring(14, 11)
         End If
         Me.ImagenA = GetBase64Code(imagenA)
         Me.ImagenA = GetBase64Code(imagenR)

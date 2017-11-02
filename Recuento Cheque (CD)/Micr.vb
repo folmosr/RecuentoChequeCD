@@ -5,7 +5,7 @@ Public Class Micr
     #Region "Methods"
 
     Private Sub BtnCMC_Click(sender As Object, e As EventArgs) Handles BtnCMC.Click
-        If (IsValidMICR()) Then
+        If (IsValidMICR() And Recuento.Registrado(String.Format("{0}{1}{2}{3}", TxtNCheque.Text, TxtCodBco.Text, TxtCodPlza.Text, TxtCtaCorriente.Text))) Then
             Dim objCheque As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             objCheque.NroCheque = TxtNCheque.Text
             objCheque.CodBanco = TxtCodBco.Text

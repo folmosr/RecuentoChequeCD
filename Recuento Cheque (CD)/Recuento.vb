@@ -13,6 +13,20 @@ Imports Recuento_Cheque__CD_
 
 Public Class Recuento
 
+#Region "Internal Methods"
+
+    Friend Function Registrado(micr As String) As Boolean
+        micr = Regex.Replace(micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty), "\s", "")
+        Dim count As Int32 = Modulo.ListaCheques.Where(Function(x) x.Micr = micr).Count()
+        If (count > 0) Then
+            MessageBox.Show("El código CMC7 que intenta agregar ya existe", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            Return False
+        End If
+        Return True
+    End Function
+
+#End Region
+
 #Region "Private Methods"
 
     Private Function ActualizaCheque() As Boolean
@@ -85,12 +99,12 @@ Public Class Recuento
     End Sub
 
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
-        If (Modulo.Tipo_Proceso = 1) Then
+        Dim item As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
+        If ((Modulo.Tipo_Proceso = 1) And (item.FinProceso IsNot Nothing)) Then
             Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
             Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
             Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
             Dim Db As DataAccesss = New DataAccesss()
-            Dim item As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
             Dim cmc7 As String = item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente
             Dim tmpLista As List(Of Cheque) = New List(Of Cheque)()
             tmpLista.Add(item)
@@ -357,16 +371,21 @@ Public Class Recuento
                     Dim FileA As FileStream = New FileStream(ImgA, FileMode.Open)
                     Dim FileR As FileStream = New FileStream(ImgR, FileMode.Open)
 
-                    DocsMin = DocsMin + 1
+                    If (Registrado(MICR)) Then
+                        DocsMin = DocsMin + 1
 
-                    DispImagenA = New Bitmap(Image.FromStream(FileA))
-                    DispImagenR = New Bitmap(Image.FromStream(FileR))
-                    Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR, Convert.ToInt32(Modulo.Id_Recuento_Contenedor), Modulo.Tipo_Recuento))
-                    FrontPictureBox.Image = DispImagenA
-                    BackPictureBox.Image = DispImagenR
+                        DispImagenA = New Bitmap(Image.FromStream(FileA))
+                        DispImagenR = New Bitmap(Image.FromStream(FileR))
 
-                    LblChcCount.Text = DocsMin
 
+                        Modulo.ListaCheques.Add(New Cheque(MICR, DispImagenA, DispImagenR, Convert.ToInt32(Modulo.Id_Recuento_Contenedor), Modulo.Tipo_Recuento))
+
+
+                        FrontPictureBox.Image = DispImagenA
+                        BackPictureBox.Image = DispImagenR
+
+                        LblChcCount.Text = DocsMin
+                    End If
                     FileA.Close()
                     FileR.Close()
                     flag = True

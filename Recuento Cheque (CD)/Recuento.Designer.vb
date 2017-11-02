@@ -68,6 +68,10 @@ Partial Class Recuento
         '
         'PpalLayoutPanel
         '
+        Me.PpalLayoutPanel.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.PpalLayoutPanel.AutoSize = True
         Me.PpalLayoutPanel.ColumnCount = 2
         Me.PpalLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.89286!))
         Me.PpalLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.10714!))
@@ -87,6 +91,7 @@ Partial Class Recuento
         '
         Me.LblChcSerial.AutoSize = True
         Me.LblChcSerial.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LblChcSerial.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblChcSerial.Location = New System.Drawing.Point(3, 0)
         Me.LblChcSerial.Name = "LblChcSerial"
         Me.LblChcSerial.Size = New System.Drawing.Size(589, 39)
@@ -96,6 +101,9 @@ Partial Class Recuento
         '
         'InnerLayoutPanel
         '
+        Me.InnerLayoutPanel.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.InnerLayoutPanel.ColumnCount = 1
         Me.InnerLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.InnerLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -123,9 +131,11 @@ Partial Class Recuento
         '
         'BackPictureBox
         '
+        Me.BackPictureBox.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.BackPictureBox.BackColor = System.Drawing.SystemColors.ControlLightLight
         Me.BackPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
-        Me.BackPictureBox.Dock = System.Windows.Forms.DockStyle.Fill
         Me.BackPictureBox.Location = New System.Drawing.Point(3, 218)
         Me.BackPictureBox.Name = "BackPictureBox"
         Me.BackPictureBox.Size = New System.Drawing.Size(583, 209)
@@ -147,9 +157,10 @@ Partial Class Recuento
         Me.PanelContainer.Controls.Add(Me.LblFecha)
         Me.PanelContainer.Controls.Add(Me.TxtMonto)
         Me.PanelContainer.Controls.Add(Me.LblMonto)
+        Me.PanelContainer.Dock = System.Windows.Forms.DockStyle.Right
         Me.PanelContainer.Location = New System.Drawing.Point(598, 42)
         Me.PanelContainer.Name = "PanelContainer"
-        Me.PanelContainer.Size = New System.Drawing.Size(183, 393)
+        Me.PanelContainer.Size = New System.Drawing.Size(183, 430)
         Me.PanelContainer.TabIndex = 3
         '
         'ActionPanel
@@ -164,7 +175,7 @@ Partial Class Recuento
         Me.ActionPanel.Controls.Add(Me.BtnGuardar)
         Me.ActionPanel.Controls.Add(Me.BtnEliminar)
         Me.ActionPanel.Dock = System.Windows.Forms.DockStyle.Bottom
-        Me.ActionPanel.Location = New System.Drawing.Point(0, 288)
+        Me.ActionPanel.Location = New System.Drawing.Point(0, 325)
         Me.ActionPanel.Name = "ActionPanel"
         Me.ActionPanel.Size = New System.Drawing.Size(183, 105)
         Me.ActionPanel.TabIndex = 8
@@ -234,7 +245,7 @@ Partial Class Recuento
         'BtnBack
         '
         Me.BtnBack.Image = CType(resources.GetObject("BtnBack.Image"), System.Drawing.Image)
-        Me.BtnBack.Location = New System.Drawing.Point(51, 229)
+        Me.BtnBack.Location = New System.Drawing.Point(51, 288)
         Me.BtnBack.Name = "BtnBack"
         Me.BtnBack.Size = New System.Drawing.Size(42, 30)
         Me.BtnBack.TabIndex = 7
@@ -243,7 +254,7 @@ Partial Class Recuento
         'BtnNext
         '
         Me.BtnNext.Image = CType(resources.GetObject("BtnNext.Image"), System.Drawing.Image)
-        Me.BtnNext.Location = New System.Drawing.Point(91, 229)
+        Me.BtnNext.Location = New System.Drawing.Point(91, 288)
         Me.BtnNext.Name = "BtnNext"
         Me.BtnNext.Size = New System.Drawing.Size(42, 30)
         Me.BtnNext.TabIndex = 3
@@ -252,7 +263,7 @@ Partial Class Recuento
         'BtnFirst
         '
         Me.BtnFirst.Image = CType(resources.GetObject("BtnFirst.Image"), System.Drawing.Image)
-        Me.BtnFirst.Location = New System.Drawing.Point(131, 229)
+        Me.BtnFirst.Location = New System.Drawing.Point(131, 288)
         Me.BtnFirst.Name = "BtnFirst"
         Me.BtnFirst.Size = New System.Drawing.Size(42, 30)
         Me.BtnFirst.TabIndex = 6
@@ -261,7 +272,7 @@ Partial Class Recuento
         'BtnLast
         '
         Me.BtnLast.Image = CType(resources.GetObject("BtnLast.Image"), System.Drawing.Image)
-        Me.BtnLast.Location = New System.Drawing.Point(11, 229)
+        Me.BtnLast.Location = New System.Drawing.Point(11, 288)
         Me.BtnLast.Name = "BtnLast"
         Me.BtnLast.Size = New System.Drawing.Size(42, 30)
         Me.BtnLast.TabIndex = 7
@@ -272,7 +283,7 @@ Partial Class Recuento
         Me.TxtTotal.BackColor = System.Drawing.SystemColors.ActiveBorder
         Me.TxtTotal.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.TxtTotal.Font = New System.Drawing.Font("Microsoft Sans Serif", 18.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.TxtTotal.Location = New System.Drawing.Point(11, 189)
+        Me.TxtTotal.Location = New System.Drawing.Point(11, 241)
         Me.TxtTotal.Multiline = True
         Me.TxtTotal.Name = "TxtTotal"
         Me.TxtTotal.ReadOnly = True
@@ -285,7 +296,7 @@ Partial Class Recuento
         Me.LblTotal.BackColor = System.Drawing.SystemColors.ControlLight
         Me.LblTotal.Enabled = False
         Me.LblTotal.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblTotal.Location = New System.Drawing.Point(11, 157)
+        Me.LblTotal.Location = New System.Drawing.Point(11, 209)
         Me.LblTotal.Name = "LblTotal"
         Me.LblTotal.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.LblTotal.Size = New System.Drawing.Size(160, 25)
@@ -296,7 +307,7 @@ Partial Class Recuento
         'DtFecha
         '
         Me.DtFecha.Format = System.Windows.Forms.DateTimePickerFormat.[Short]
-        Me.DtFecha.Location = New System.Drawing.Point(12, 117)
+        Me.DtFecha.Location = New System.Drawing.Point(12, 156)
         Me.DtFecha.Name = "DtFecha"
         Me.DtFecha.Size = New System.Drawing.Size(160, 20)
         Me.DtFecha.TabIndex = 2
@@ -306,7 +317,7 @@ Partial Class Recuento
         Me.LblFecha.BackColor = System.Drawing.SystemColors.ControlLight
         Me.LblFecha.Enabled = False
         Me.LblFecha.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblFecha.Location = New System.Drawing.Point(12, 86)
+        Me.LblFecha.Location = New System.Drawing.Point(12, 125)
         Me.LblFecha.Name = "LblFecha"
         Me.LblFecha.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.LblFecha.Size = New System.Drawing.Size(160, 25)
@@ -316,7 +327,7 @@ Partial Class Recuento
         '
         'TxtMonto
         '
-        Me.TxtMonto.Location = New System.Drawing.Point(12, 45)
+        Me.TxtMonto.Location = New System.Drawing.Point(12, 64)
         Me.TxtMonto.Multiline = True
         Me.TxtMonto.Name = "TxtMonto"
         Me.TxtMonto.Size = New System.Drawing.Size(160, 25)
@@ -327,7 +338,7 @@ Partial Class Recuento
         Me.LblMonto.BackColor = System.Drawing.SystemColors.ControlLight
         Me.LblMonto.Enabled = False
         Me.LblMonto.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.LblMonto.Location = New System.Drawing.Point(12, 13)
+        Me.LblMonto.Location = New System.Drawing.Point(12, 32)
         Me.LblMonto.Name = "LblMonto"
         Me.LblMonto.RightToLeft = System.Windows.Forms.RightToLeft.No
         Me.LblMonto.Size = New System.Drawing.Size(160, 25)
@@ -337,7 +348,8 @@ Partial Class Recuento
         '
         'LblChcCount
         '
-        Me.LblChcCount.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.LblChcCount.Dock = System.Windows.Forms.DockStyle.Right
+        Me.LblChcCount.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.LblChcCount.Location = New System.Drawing.Point(598, 0)
         Me.LblChcCount.Name = "LblChcCount"
         Me.LblChcCount.Size = New System.Drawing.Size(183, 39)
@@ -357,6 +369,7 @@ Partial Class Recuento
         Me.Name = "Recuento"
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.PpalLayoutPanel.ResumeLayout(False)
         Me.PpalLayoutPanel.PerformLayout()
         Me.InnerLayoutPanel.ResumeLayout(False)
@@ -366,6 +379,7 @@ Partial Class Recuento
         Me.PanelContainer.PerformLayout()
         Me.ActionPanel.ResumeLayout(False)
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
