@@ -15,6 +15,7 @@ Public Class Buscar
                 Recuento.FrontPictureBox.Image = objCheque.ImagenABitmap
                 Recuento.BackPictureBox.Image = objCheque.ImagenRBitmap
                 Recuento.LblChcCount.Text = (Index + 1).ToString() & "/" & Modulo.ListaCheques.Count.ToString()
+                Modulo.Indice = Index
                 Me.Close()
             Else
                 MessageBox.Show("Cheque no existente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)

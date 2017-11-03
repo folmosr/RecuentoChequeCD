@@ -28,7 +28,7 @@ Public Class Cheque
     Public Sub New(ByVal micr As String, ByVal imagenA As Bitmap, ByVal imagenR As Bitmap, ByVal idRecuento As Int32, ByVal tipo As String)
         Me.Micr = Regex.Replace(micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty), "\s", "")
         If (Me.Micr.Length = 27) Then
-            Me.NroCheque = Me.Micr.Substring(0, 6)
+            Me.NroCheque = Me.Micr.Substring(0, 7)
             Me.CodBanco = Me.Micr.Substring(7, 3)
             Me.CodPlza = Me.Micr.Substring(10, 4)
             Me.CtaCorriente = Me.Micr.Substring(14, 11)
@@ -40,7 +40,7 @@ Public Class Cheque
         Me.Fecha = DateTime.Now.ToString("yyyy-MM-dd")
         Me.Id_Recuento_Contenedor = idRecuento
         Me.Tipo_Recuento = tipo
-        Me.Monto = IIf((Modulo.Tipo_Proceso = 0), 0, 2)
+        Me.Monto = 0
         Me.IniProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
 
     End Sub

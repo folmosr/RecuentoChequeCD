@@ -16,7 +16,9 @@ Public Class Recuento
 #Region "Internal Methods"
 
     Friend Function Registrado(micr As String) As Boolean
-        micr = Regex.Replace(micr.Replace(">", String.Empty).Replace("<", String.Empty).Replace(":", String.Empty), "\s", "")
+        micr = micr.Replace(">", String.Empty).Replace("<", String.Empty)
+        micr = (micr.Split(":"))(0)
+        micr = Regex.Replace(micr, "\s", "")
         Dim count As Int32 = Modulo.ListaCheques.Where(Function(x) x.Micr = micr).Count()
         If (count > 0) Then
             MessageBox.Show("El código CMC7 que intenta agregar ya existe", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
@@ -112,7 +114,9 @@ Public Class Recuento
                 IO.File.Delete(file_name_front & cmc7 & ".jpeg")
                 IO.File.Delete(file_name_back & cmc7 & ".jpeg")
             End If
+            ProgressBar1.Increment(50%)
             Db.RollBack(tmpLista.ConvertToDataTable())
+            ProgressBar1.Increment(50%)
         End If
         Modulo.ListaCheques.RemoveAt(Modulo.Indice)
         ReiniciaControlesDetalle()
@@ -125,6 +129,7 @@ Public Class Recuento
             SetDatosAControles()
             ActualizaTotal()
         End If
+        ProgressBar1.Value = 0
     End Sub
 
     Private Sub BtnExpulsar_Click(sender As Object, e As EventArgs) Handles BtnExpulsar.Click
@@ -158,41 +163,43 @@ Public Class Recuento
     End Sub
 
     Private Sub BtnProcesar_Click(sender As Object, e As EventArgs) Handles BtnProcesar.Click
-        If (Modulo.ListaCheques.Count > 0) Then
-            Dim Reintento As MsgBoxResult
-            Dim resp As Boolean
-            Dim Db As DataAccesss
-            ProgressBar1.UseWaitCursor = True
-            If (Modulo.Tipo_Proceso = 0) Then
+        Try
+            If (Modulo.ListaCheques.Count > 0) Then
+                Dim Reintento As MsgBoxResult
+                Dim resp As Boolean
+                Dim Db As DataAccesss
+                ProgressBar1.UseWaitCursor = True
                 SetFinProceso()
-            End If
-            If (ActualizaCheque()) Then
-                BloqueaDetalle()
-                BtnRestart.Enabled = False
-                BtnExpulsar.Enabled = False
-                ProgressBar1.Enabled = True
-                If (UploadFile()) Then
-                    Dim dt As DataTable = Modulo.ListaCheques.ConvertToDataTable()
-                    Db = New DataAccesss()
-                    If (Modulo.Tipo_Proceso = 1) Then
-                        Db.RollBack(dt)
-                    End If
-                    resp = Db.Process(dt)
-                    If (Not resp) Then
-                        Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-                        ProgressBar1.Value = 0
+                If (ActualizaCheque()) Then
+                    BloqueaDetalle()
+                    BtnRestart.Enabled = False
+                    BtnExpulsar.Enabled = False
+                    ProgressBar1.Enabled = True
+                    If (UploadFile()) Then
+                        Dim dt As DataTable = Modulo.ListaCheques.ConvertToDataTable()
+                        Db = New DataAccesss()
+                        If (Modulo.Tipo_Proceso = 1) Then
+                            Db.RollBack(dt)
+                        End If
+                        resp = Db.Process(dt)
+                        If (Not resp) Then
+                            Reintento = MessageBox.Show("Imposible almacenar la información recabada", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+                            ProgressBar1.Value = 0
+                        Else
+                            ProgressBar1.Increment(1)
+                            MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
+                            Application.Exit()
+                        End If
                     Else
-                        ProgressBar1.Increment(1)
-                        MessageBox.Show("Proceso realizado satisfactoriamente", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1)
-                        Application.Exit()
+                        MessageBox.Show("Imposible almacenar las imagenes digitalizadas", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                     End If
-                Else
-                    MessageBox.Show("Imposible almacenar las imagenes digitalizadas", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                 End If
+            Else
+                MessageBox.Show("No hay documentos que procesar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             End If
-        Else
-            MessageBox.Show("No hay documentos que procesar", "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
-        End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+        End Try
     End Sub
 
     Private Sub BtnRestart_Click(sender As Object, e As EventArgs) Handles BtnRestart.Click
@@ -869,7 +876,9 @@ Public Class Recuento
 
     Private Sub SetFinProceso()
         For Each item In Modulo.ListaCheques
-            item.FinProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            If (item.FinProceso Is Nothing) Then
+                item.FinProceso = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            End If
         Next
     End Sub
 
@@ -963,9 +972,17 @@ Public Class Recuento
             'End If
             Return True
         Catch e As Exception
-            Return False
+            Throw
         End Try
     End Function
+
+    Private Sub ActionPanel_Paint(sender As Object, e As PaintEventArgs) Handles ActionPanel.Paint
+
+    End Sub
+
+    Private Sub ProgressBar1_Click(sender As Object, e As EventArgs) Handles ProgressBar1.Click
+
+    End Sub
 
 #End Region
 
