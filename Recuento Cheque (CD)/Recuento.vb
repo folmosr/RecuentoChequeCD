@@ -176,7 +176,9 @@ Public Class Recuento
                     BtnExpulsar.Enabled = False
                     ProgressBar1.Enabled = True
                     If (UploadFile()) Then
-                        Dim dt As DataTable = Modulo.ListaCheques.ConvertToDataTable()
+                        Dim dt As DataTable = Modulo.ListaCheques.Where(Function(x As Cheque)
+                                                                            Return (x.NroCheque IsNot Nothing And x.CodBanco IsNot Nothing And x.CodPlza IsNot Nothing And x.CtaCorriente IsNot Nothing)
+                                                                        End Function).ToList().ConvertToDataTable()
                         Db = New DataAccesss()
                         If (Modulo.Tipo_Proceso = 1) Then
                             Db.RollBack(dt)
@@ -205,6 +207,14 @@ Public Class Recuento
     Private Sub BtnRestart_Click(sender As Object, e As EventArgs) Handles BtnRestart.Click
         Dim result As Integer = MessageBox.Show("¿Está seguro de reliazar esta acción? Perderá toda la información.", "Reinicar Proceso", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1)
         If result = DialogResult.Yes Then
+            If (Modulo.Tipo_Proceso = 1) Then
+                Dim dt As DataTable = Modulo.ListaCheques.Where(Function(x As Cheque)
+                                                                    Return (x.NroCheque IsNot Nothing And x.CodBanco IsNot Nothing And x.CodPlza IsNot Nothing And x.CtaCorriente IsNot Nothing)
+                                                                End Function).ToList().ConvertToDataTable()
+                Dim Db As DataAccesss = New DataAccesss()
+                Db.RollBack(dt)
+                Modulo.Tipo_Proceso = 0
+            End If
             Modulo.ListaCheques.Clear()
             Modulo.DocsMin = 0
             ReiniciaControlesDetalle()
@@ -254,8 +264,8 @@ Public Class Recuento
                         .Id_Recuento_Contenedor = dr("Id_Recuento_Contenedor").ToString(),
                         .Tipo_Recuento = dr("Tipo_Recuento").ToString(),
                         .Estado = 2,
-                        .IniProceso = dr("IniProceso").ToString(),
-                         .FinProceso = dr("FinProceso").ToString(),
+                        .IniProceso = ToDatetime(dr("IniProceso").ToString()),
+                         .FinProceso = ToDatetime(dr("FinProceso").ToString()),
                          .Micr = cmc7
                         })
                 End If
@@ -975,15 +985,6 @@ Public Class Recuento
             Throw
         End Try
     End Function
-
-    Private Sub ActionPanel_Paint(sender As Object, e As PaintEventArgs) Handles ActionPanel.Paint
-
-    End Sub
-
-    Private Sub ProgressBar1_Click(sender As Object, e As EventArgs) Handles ProgressBar1.Click
-
-    End Sub
-
 #End Region
 
 End Class
