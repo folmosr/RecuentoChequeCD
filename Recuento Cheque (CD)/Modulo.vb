@@ -96,6 +96,11 @@ Module Modulo
     Public Tipo_Recuento As String
     Public TS240 As Boolean
     Public ZERO As Int16 = 48
+    Public Tipo_Contenido As String
+    Friend Detalle_Cheque As String
+    Friend Guardar_Imagen As String
+    Friend Fecha_Recibo As String
+
     <System.Runtime.CompilerServices.Extension>
     Public Function ConvertToDataTable(Of T)(ByVal list As IList(Of T)) As DataTable
         Dim td As New DataTable

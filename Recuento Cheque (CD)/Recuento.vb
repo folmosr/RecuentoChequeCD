@@ -103,7 +103,12 @@ Public Class Recuento
     Private Sub BtnEliminar_Click(sender As Object, e As EventArgs) Handles BtnEliminar.Click
         Dim item As Cheque = Modulo.ListaCheques.ElementAt(Modulo.Indice)
         If ((Modulo.Tipo_Proceso = 1) And (item.FinProceso IsNot Nothing)) Then
-            Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
+            Dim root As String = Nothing
+            If (Modulo.Tipo_Contenido = "Cheque" And Modulo.Detalle_Cheque = "1" And Modulo.Guardar_Imagen = "1") Then
+                root = ConfigurationManager.AppSettings.Item("machine_14").ToString()
+            ElseIf (Modulo.Tipo_Contenido = "Cheques CAD") Then
+                root = ConfigurationManager.AppSettings.Item("machine").ToString()
+            End If
             Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
             Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
             Dim Db As DataAccesss = New DataAccesss()
@@ -227,10 +232,15 @@ Public Class Recuento
     Private Sub CargarDataProcesada()
         Dim Db As DataAccesss = New DataAccesss()
         Dim dt As DataTable = Db.Load()
-        Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
+        Dim root As String = Nothing
+        If (Modulo.Tipo_Contenido = "Cheque" And Modulo.Detalle_Cheque = "1" And Modulo.Guardar_Imagen = "1") Then
+            root = ConfigurationManager.AppSettings.Item("machine_14").ToString()
+        ElseIf (Modulo.Tipo_Contenido = "Cheques CAD") Then
+            root = ConfigurationManager.AppSettings.Item("machine").ToString()
+        End If
         Modulo.ListaCheques = New List(Of Cheque)
-        Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-        Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+        Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+        Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
         Dim cmc7 As String
         If (dt.Rows.Count > 0) Then
             For Each dr In dt.Rows
@@ -670,6 +680,16 @@ Public Class Recuento
     End Function
 
     Private Sub GetQueryStringParameters()
+        ''Eje.
+        'Modulo.Id_Recuento_Contenedor = "287"
+        'Modulo.Cliente = "Nombre cliente"
+        'Modulo.Sucursal = "Nombre sucursal"
+        'Modulo.Tipo_Recuento = "2(OB)/1(MB)"
+        'Modulo.Tipo_Contenido = "Cheque/Cheques CAD"
+        'Modulo.Detalle_Cheque = "1/0"
+        'Modulo.Guardar_Imagen = "1/0"
+        'Modulo.Id_Recuento = "1224"
+
         Dim NameValueTable As New NameValueCollection()
         Dim values() As String
         If (ApplicationDeployment.IsNetworkDeployed) Then
@@ -687,6 +707,14 @@ Public Class Recuento
                             Modulo.Sucursal = value
                         ElseIf (key = "tipo_recuento") Then
                             Modulo.Tipo_Recuento = value
+                        ElseIf (key = "contenido") Then
+                            Modulo.Tipo_Contenido = value
+                        ElseIf (key = "cheque") Then
+                            Modulo.Detalle_Cheque = value
+                        ElseIf (key = "digitalizacion") Then
+                            Modulo.Guardar_Imagen = value
+                        ElseIf (key = "frecibo") Then
+                            Modulo.Fecha_Recibo = value
                         Else
                             Modulo.Id_Recuento = value
                         End If
@@ -775,7 +803,12 @@ Public Class Recuento
 
     Private Sub OpenImagesDirectory()
         Dim nr As New NETRESOURCE
-        Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
+        Dim root As String = Nothing
+        If (Modulo.Tipo_Contenido = "Cheque" And Modulo.Detalle_Cheque = "1" And Modulo.Guardar_Imagen = "1") Then
+            root = ConfigurationManager.AppSettings.Item("machine_14").ToString()
+        ElseIf (Modulo.Tipo_Contenido = "Cheques CAD") Then
+            root = ConfigurationManager.AppSettings.Item("machine").ToString()
+        End If
         nr.dwType = Modulo.RESOURCETYPE_DISK
         nr.lpRemoteName = root
         If WNetAddConnection2(nr, ConfigurationManager.AppSettings.Item("pass").ToString(), ConfigurationManager.AppSettings.Item("user").ToString(), 0) <> NO_ERROR Then
@@ -799,7 +832,7 @@ Public Class Recuento
 
     Private Sub Recuento_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         GetQueryStringParameters()
-        OpenImagesDirectory()
+        'OpenImagesDirectory()
         SetTootlTips()
         ReiniciaControlesDetalle()
         BloqueaDetalle()
@@ -962,14 +995,19 @@ Public Class Recuento
 
     Private Function UploadFile() As Boolean
         Try
-            Dim root As String = ConfigurationManager.AppSettings.Item("machine").ToString()
-            Dim file_name_front = root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-            Dim file_name_back = root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
-            If Not IO.Directory.Exists(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\") Then
-                IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
-            Else
-                IO.Directory.Delete(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
-                IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
+            Dim root As String = Nothing
+            If (Modulo.Tipo_Contenido = "Cheque" And Modulo.Detalle_Cheque = "1" And Modulo.Guardar_Imagen = "1") Then
+                root = ConfigurationManager.AppSettings.Item("machine_14").ToString()
+            ElseIf (Modulo.Tipo_Contenido = "Cheques CAD") Then
+                root = ConfigurationManager.AppSettings.Item("machine").ToString()
+            End If 'Date.Now().Date.ToString("dd-MM-yyyy")
+            Dim file_name_front = root & "\" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = root & "\" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+            If Not IO.Directory.Exists(root & "\" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\") Then
+                IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\")
+                'Else
+                'IO.Directory.Delete(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\", True)
+                'IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
                 SaveImage(item.ImagenABitmap, file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg")

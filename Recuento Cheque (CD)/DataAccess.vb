@@ -45,13 +45,15 @@ Public Class DataAccesss
             cmd.CommandText = "sp_ProcesaDetalleDocumentos"
             cmd.CommandType = CommandType.StoredProcedure
             cmd.Parameters.AddWithValue("@LoadTable", CleanDataTable(Dt))
-            Dim reader As SqlDataReader = cmd.ExecuteReader()
-            If reader.HasRows Then
-                cad = New DataTable
-                cad.Load(reader)
-                ProcessCAD(cad)
+            If (Modulo.Tipo_Contenido = "Cheques CAD") Then
+                Dim reader As SqlDataReader = cmd.ExecuteReader()
+                If reader.HasRows Then
+                    cad = New DataTable
+                    cad.Load(reader)
+                    ProcessCAD(cad)
+                End If
+                reader.Close()
             End If
-            reader.Close()
         Catch ex As Exception
             MessageBox.Show("Ocurrieron errores durante el proceso: " & vbNewLine & ex.Message, "Mensaje", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
             Return False
