@@ -109,15 +109,14 @@ Public Class Recuento
             ElseIf (Modulo.Tipo_Contenido = "Cheques CAD") Then
                 root = ConfigurationManager.AppSettings.Item("machine").ToString()
             End If
-            Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-            Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+            Dim file_name_front = root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+            Dim file_name_back = root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
             Dim Db As DataAccesss = New DataAccesss()
             Dim cmc7 As String = item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente
-            Dim tmpLista As List(Of Cheque) = New List(Of Cheque)()
-            tmpLista.Add(item)
-            If (IO.File.Exists(file_name_front & cmc7 & ".jpeg") And IO.File.Exists(file_name_back & cmc7 & ".jpeg")) Then
-                IO.File.Delete(file_name_front & cmc7 & ".jpeg")
-                IO.File.Delete(file_name_back & cmc7 & ".jpeg")
+            Dim tmpLista As List(Of Cheque) = New List(Of Cheque) From {item}
+            If (IO.File.Exists(file_name_front & cmc7 & Modulo.LCode & ".jpg") And IO.File.Exists(file_name_back & cmc7 & Modulo.LCode & ".jpg")) Then
+                IO.File.Delete(file_name_front & cmc7 & Modulo.LCode & ".jpg")
+                IO.File.Delete(file_name_back & cmc7 & Modulo.LCode & ".jpg")
             End If
             ProgressBar1.Increment(50%)
             Db.RollBack(tmpLista.ConvertToDataTable())
@@ -239,13 +238,13 @@ Public Class Recuento
             root = ConfigurationManager.AppSettings.Item("machine").ToString()
         End If
         Modulo.ListaCheques = New List(Of Cheque)
-        Dim file_name_front = root & "/" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
-        Dim file_name_back = root & "/" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
+        Dim file_name_front = root & "\" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("frontAKA")
+        Dim file_name_back = root & "\" & Modulo.Cliente & "\" & Modulo.Fecha_Recibo & "\" & Modulo.Sucursal & "\" & ConfigurationManager.AppSettings.Item("backAKA")
         Dim cmc7 As String
         If (dt.Rows.Count > 0) Then
             For Each dr In dt.Rows
                 cmc7 = (dr("NroCheque").ToString() & dr("CodBanco").ToString() & dr("CodPlza").ToString() & dr("CtaCorriente").ToString())
-                If (IO.File.Exists(file_name_front & cmc7 & ".jpeg") And IO.File.Exists(file_name_back & cmc7 & ".jpeg")) Then
+                If (IO.File.Exists(file_name_front & cmc7 & ".jpg") And IO.File.Exists(file_name_back & cmc7 & ".jpg")) Then
                     Modulo.ListaCheques.Add(New Cheque With {
                                         .Fecha = dr("Fecha").ToString(),
                                         .NroCheque = dr("NroCheque").ToString(),
@@ -258,8 +257,8 @@ Public Class Recuento
                                         .Estado = 2,
                                         .IniProceso = ToDatetime(dr("IniProceso").ToString()),
                                         .FinProceso = ToDatetime(dr("FinProceso").ToString()),
-                                        .ImagenABitmap = LoadChequeImage(file_name_front & cmc7 & ".jpeg", New System.IO.MemoryStream),
-                                        .ImagenRBitmap = LoadChequeImage(file_name_back & cmc7 & ".jpeg", New System.IO.MemoryStream),
+                                        .ImagenABitmap = LoadChequeImage(file_name_front & cmc7 & Modulo.LCode & ".jpg", New System.IO.MemoryStream),
+                                        .ImagenRBitmap = LoadChequeImage(file_name_back & cmc7 & Modulo.LCode & ".jpg", New System.IO.MemoryStream),
                                         .Micr = cmc7
                      })
 
@@ -1010,8 +1009,8 @@ Public Class Recuento
                 'IO.Directory.CreateDirectory(root & "\" & Modulo.Cliente & "\" & Date.Now().Date.ToString("dd-MM-yyyy") & "\" & Modulo.Sucursal & "\")
             End If
             For Each item As Cheque In ListaCheques
-                SaveImage(item.ImagenABitmap, file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg")
-                SaveImage(item.ImagenRBitmap, file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & ".jpeg")
+                SaveImage(item.ImagenABitmap, file_name_front & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & Modulo.LCode & ".jpg")
+                SaveImage(item.ImagenRBitmap, file_name_back & item.NroCheque & item.CodBanco & item.CodPlza & item.CtaCorriente & Modulo.LCode & ".jpg")
                 ProgressBar1.Increment(1)
                 item.Estado = IIf((item.Estado = 2), 2, 1)
             Next

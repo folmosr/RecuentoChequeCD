@@ -100,6 +100,7 @@ Module Modulo
     Friend Detalle_Cheque As String
     Friend Guardar_Imagen As String
     Friend Fecha_Recibo As String
+    Friend LCode As String = "01"
 
     <System.Runtime.CompilerServices.Extension>
     Public Function ConvertToDataTable(Of T)(ByVal list As IList(Of T)) As DataTable
