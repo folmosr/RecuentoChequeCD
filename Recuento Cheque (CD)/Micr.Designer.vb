@@ -159,7 +159,7 @@ Partial Class Micr
         Me.MinimizeBox = False
         Me.Name = "Micr"
         Me.ShowInTaskbar = False
-        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "Corregir Código CMC7"
         Me.TopMost = True
         Me.Panel1.ResumeLayout(False)
